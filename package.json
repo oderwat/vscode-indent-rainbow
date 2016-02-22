@@ -1,0 +1,36 @@
+{
+	"name": "indent-rainbow",
+	"description": "Makes indentation easier to read",
+	"version": "0.1.1",
+	"publisher": "oderwat",
+  "author": {
+    "name": "Hans Raaf"
+  },
+  "icon": "assets/icon.png",
+	"license": "MIT",
+	"engines": {
+		"vscode": "0.10.x"
+	},
+  "repository": {
+    "url": "https://github.com/oderwat/vscode-indent-rainbow.git",
+    "type": "git"
+  },
+  "bugs": {
+        "url": "https://github.com/oderwat/vscode-indent-rainbow/issues"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"*"
+	],
+	"main": "./out/extension",
+	"scripts": {
+		"vscode:prepublish": "node ./node_modules/vscode/bin/compile",
+		"compile": "node ./node_modules/vscode/bin/compile -watch -p ./"
+	},
+	"devDependencies": {
+		"vscode": "0.10.x",
+		"typescript": "^1.6.2"
+	}
+}
