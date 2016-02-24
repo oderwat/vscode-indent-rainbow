@@ -1,7 +1,7 @@
 {
 	"name": "indent-rainbow",
 	"description": "Makes indentation easier to read",
-	"version": "0.1.1",
+	"version": "0.2.0",
 	"publisher": "oderwat",
   "author": {
     "name": "Hans Raaf"
@@ -24,6 +24,29 @@
 	"activationEvents": [
 		"*"
 	],
+  "contributes": {
+    "configuration": {
+        "type": "object",
+        "title": "Indent-Rainbow configuration",
+        "properties": {
+            "indentRainbow.includedLanguages": {
+                "type": "array",
+                "default": [],
+                "description": "For which languages indent-rainbow should be activated (if empty it means all)."
+            },
+            "indentRainbow.excludedLanguages": {
+                "type": "array",
+                "default": [],
+                "description": "For which languages indent-rainbow should be deactivated (if empty it means none)."
+            },
+            "indentRainbow.updateDelay": {
+                "type": "integer",
+                "default": 100,
+                "description": "The delay in ms until the editor gets updated."
+            }
+        }
+    }
+},
 	"main": "./out/extension",
 	"scripts": {
 		"vscode:prepublish": "node ./node_modules/vscode/bin/compile",

@@ -8,6 +8,23 @@ This extension colorises the indentation in front of your text alternating four 
 
 It uses the current editor window tabsize and can handle mixed tab + spaces but that is not recommended. In addition it visibly marks lines where the indentation is not a multiple of the tabsize. This should help to find problems with indentation in some situations.
 
+### Configuration
+
+Although you can just use it as it is there is the possibility to configure some aspects of the extension:
+
+```
+  // For which languages indent-rainbow should be activated (if empty it means all).
+  "indentRainbow.includedLanguages": [] // for example ["nim", "nims", "python"]
+
+  // For which languages indent-rainbow should be deactivated (if empty it means none).
+  "indentRainbow.excludedLanguages": [] // for example ["plaintext"]
+
+  // The delay in ms until the editor gets updated.
+  "indentRainbow.updateDelay": 100 // 10 makes it super fast but may cost more resources
+```
+
+*Notice: Defining both `includedLanguages` and `excludedLanguages` does not make much sense. Use one of both!*
+
 Build with:
 
 ```
