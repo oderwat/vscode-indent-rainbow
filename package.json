@@ -1,7 +1,7 @@
 {
 	"name": "indent-rainbow",
 	"description": "Makes indentation easier to read",
-	"version": "0.2.0",
+	"version": "0.3.0",
 	"publisher": "oderwat",
   "author": {
     "name": "Hans Raaf"
@@ -43,6 +43,11 @@
                 "type": "integer",
                 "default": 100,
                 "description": "The delay in ms until the editor gets updated."
+            },
+            "indentRainbow.indentSetter": {
+                "type": "object",
+                "default": {},
+                "description": "Automatically change indent settings for languages (see README.md for details)."
             }
         }
     }

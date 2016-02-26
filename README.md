@@ -21,6 +21,18 @@ Although you can just use it as it is there is the possibility to configure some
 
   // The delay in ms until the editor gets updated.
   "indentRainbow.updateDelay": 100 // 10 makes it super fast but may cost more resources
+
+  // Automatically change indent setting (tabSize / insertSpaces) for a language.
+  "indentRainbow.indentSetter": {} // do nothing as default
+
+  // Example for language based indentation:
+  "indentRainbow.indentSetter": {
+    "nim": { "tabSize": 2, "insertSpaces": true },
+    "nims": { "tabSize": 2, "insertSpaces": true },
+    "python": { "tabSize": 4, "insertSpaces": true },
+    "php": { "tabSize": 4, "insertSpaces": false }
+  }
+
 ```
 
 *Notice: Defining both `includedLanguages` and `excludedLanguages` does not make much sense. Use one of both!*

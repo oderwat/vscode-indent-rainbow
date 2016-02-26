@@ -28,6 +28,7 @@ export function activate(context: vscode.ExtensionContext) {
   var currentLanguageId = null;
 
   var activeEditor = vscode.window.activeTextEditor;
+
   if (activeEditor && checkLanguage()) {
     triggerUpdateDecorations();
   }
@@ -45,11 +46,28 @@ export function activate(context: vscode.ExtensionContext) {
     }
   }, null, context.subscriptions);
 
+  function indentConfig() {
+    // Set tabSize and insertSpaces from the config if specified for this languageId
+    var indentSetter = vscode.workspace.getConfiguration('indentRainbow')['indentSetter'] || {};
+    var langCfg = indentSetter[ activeEditor.document.languageId ];
+    if(langCfg != undefined) {
+      var opts = vscode.window.activeTextEditor.options;
+      if( opts.tabSize != langCfg.tabSize || opts.insertSpaces != langCfg.insertSpaces) {
+        vscode.window.activeTextEditor.options = {
+          "tabSize": langCfg.tabSize,
+          "insertSpaces": langCfg.insertSpaces
+        }
+      }
+    }
+  }
+
   function checkLanguage() {
     if (activeEditor) {
       if(currentLanguageId != activeEditor.document.languageId) {
         var inclang = vscode.workspace.getConfiguration('indentRainbow')['includedLanguages'] || [];
         var exclang = vscode.workspace.getConfiguration('indentRainbow')['excludedLanguages'] || [];
+
+        indentConfig();
 
         currentLanguageId = activeEditor.document.languageId;
         doIt = true;
