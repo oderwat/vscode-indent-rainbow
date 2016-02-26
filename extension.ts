@@ -50,7 +50,13 @@ export function activate(context: vscode.ExtensionContext) {
     // Set tabSize and insertSpaces from the config if specified for this languageId
     var indentSetter = vscode.workspace.getConfiguration('indentRainbow')['indentSetter'] || {};
     var langCfg = indentSetter[ activeEditor.document.languageId ];
-    if(langCfg != undefined) {
+
+    // we do nothing if we have {} to not interrupt other extensions for indent settings
+    if( indentSetter != {} ) {
+      if( langCfg == undefined ) {
+        // if we do not have any defaults get those from the editor config itself
+        langCfg = vscode.workspace.getConfiguration('editor');
+      }
       var opts = vscode.window.activeTextEditor.options;
       if( opts.tabSize != langCfg.tabSize || opts.insertSpaces != langCfg.insertSpaces) {
         vscode.window.activeTextEditor.options = {
