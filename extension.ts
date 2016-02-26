@@ -29,18 +29,30 @@ export function activate(context: vscode.ExtensionContext) {
 
   var activeEditor = vscode.window.activeTextEditor;
 
+  if(activeEditor) {
+    indentConfig()
+  }
+
   if (activeEditor && checkLanguage()) {
     triggerUpdateDecorations();
   }
 
   vscode.window.onDidChangeActiveTextEditor(editor => {
     activeEditor = editor;
+    if (editor) {
+      indentConfig()
+    }
+
     if (editor && checkLanguage()) {
       triggerUpdateDecorations();
     }
   }, null, context.subscriptions);
 
   vscode.workspace.onDidChangeTextDocument(event => {
+    if(activeEditor) {
+      indentConfig()
+    }
+
     if (activeEditor && event.document === activeEditor.document && checkLanguage()) {
       triggerUpdateDecorations();
     }
@@ -49,20 +61,16 @@ export function activate(context: vscode.ExtensionContext) {
   function indentConfig() {
     // Set tabSize and insertSpaces from the config if specified for this languageId
     var indentSetter = vscode.workspace.getConfiguration('indentRainbow')['indentSetter'] || {};
-    var langCfg = indentSetter[ activeEditor.document.languageId ];
-
     // we do nothing if we have {} to not interrupt other extensions for indent settings
     if( indentSetter != {} ) {
+      var langCfg = indentSetter[ activeEditor.document.languageId ];
       if( langCfg == undefined ) {
         // if we do not have any defaults get those from the editor config itself
         langCfg = vscode.workspace.getConfiguration('editor');
       }
-      var opts = vscode.window.activeTextEditor.options;
-      if( opts.tabSize != langCfg.tabSize || opts.insertSpaces != langCfg.insertSpaces) {
-        vscode.window.activeTextEditor.options = {
-          "tabSize": langCfg.tabSize,
-          "insertSpaces": langCfg.insertSpaces
-        }
+      vscode.window.activeTextEditor.options = {
+        "tabSize": langCfg.tabSize,
+        "insertSpaces": langCfg.insertSpaces
       }
     }
   }
@@ -72,8 +80,6 @@ export function activate(context: vscode.ExtensionContext) {
       if(currentLanguageId != activeEditor.document.languageId) {
         var inclang = vscode.workspace.getConfiguration('indentRainbow')['includedLanguages'] || [];
         var exclang = vscode.workspace.getConfiguration('indentRainbow')['excludedLanguages'] || [];
-
-        indentConfig();
 
         currentLanguageId = activeEditor.document.languageId;
         doIt = true;
@@ -101,6 +107,8 @@ export function activate(context: vscode.ExtensionContext) {
       activeEditor.setDecorations(decorationType[4], decor);
       clearMe = false;
     }
+
+    indentConfig();
 
     return doIt;
   }

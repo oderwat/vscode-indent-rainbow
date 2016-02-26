@@ -21,7 +21,14 @@ Although you can just use it as it is there is the possibility to configure some
 
   // The delay in ms until the editor gets updated.
   "indentRainbow.updateDelay": 100 // 10 makes it super fast but may cost more resources
+```
 
+*Notice: Defining both `includedLanguages` and `excludedLanguages` does not make much sense. Use one of both!*
+
+
+The following is experimental and still buggy (do not use it :)
+
+```
   // Automatically change indent setting (tabSize / insertSpaces) for a language.
   "indentRainbow.indentSetter": {} // do nothing as default
 
@@ -34,8 +41,6 @@ Although you can just use it as it is there is the possibility to configure some
   }
 
 ```
-
-*Notice: Defining both `includedLanguages` and `excludedLanguages` does not make much sense. Use one of both!*
 
 Build with:
 
