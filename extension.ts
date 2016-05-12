@@ -6,28 +6,26 @@ import * as vscode from 'vscode';
 export function activate(context: vscode.ExtensionContext) {
 
   // create a decorator types that we use to decorate indent levels
-  var decorationType = [
-      vscode.window.createTextEditorDecorationType({
-    backgroundColor: 'rgba(64,64,16,0.3)'
-  }),
-    vscode.window.createTextEditorDecorationType({
-    backgroundColor: 'rgba(32,64,32,0.3)'
-  }),
-      vscode.window.createTextEditorDecorationType({
-    backgroundColor: 'rgba(64,32,64,0.3)'
-  }),
-      vscode.window.createTextEditorDecorationType({
-    backgroundColor: 'rgba(16,48,48,0.3)'
-  }),
-      vscode.window.createTextEditorDecorationType({
-    backgroundColor: 'rgba(128,32,32,0.3)'
-  })];
+  var decorationType = [];
 
   var doIt = false;
   var clearMe = false;
   var currentLanguageId = null;
 
   var activeEditor = vscode.window.activeTextEditor;
+
+  var colors = vscode.workspace.getConfiguration('indentRainbow')['colors'] || [
+    "rgba(64,64,16,0.3)",
+    "rgba(32,64,32,0.3)",
+    "rgba(64,32,64,0.3)",
+    "rgba(16,48,48,0.3)",
+    "rgba(128,32,32,0.3)"
+  ];
+
+  for(var i=0; i<colors.length; i++) {
+    decorationType[i] = vscode.window.createTextEditorDecorationType({
+        backgroundColor: colors[i] })
+  }
 
   if(activeEditor) {
     indentConfig()
@@ -58,14 +56,19 @@ export function activate(context: vscode.ExtensionContext) {
     }
   }, null, context.subscriptions);
 
+  function isEmptyObject(obj) {
+      return Object.getOwnPropertyNames(obj).length == 0;
+  }
+
   function indentConfig() {
     // Set tabSize and insertSpaces from the config if specified for this languageId
-    var indentSetter = vscode.workspace.getConfiguration('indentRainbow')['indentSetter'] || {};
+    var indentSetter = vscode.workspace.getConfiguration('indentRainbow')['indentSetter'] || [];
     // we do nothing if we have {} to not interrupt other extensions for indent settings
-    if( indentSetter != {} ) {
+    if(! isEmptyObject(indentSetter) ) {
       var langCfg = indentSetter[ activeEditor.document.languageId ];
       if( langCfg == undefined ) {
         // if we do not have any defaults get those from the editor config itself
+        // this seems to break detectindentation = true :(
         langCfg = vscode.workspace.getConfiguration('editor');
       }
       vscode.window.activeTextEditor.options = {

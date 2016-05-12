@@ -1,64 +1,75 @@
 {
-	"name": "indent-rainbow",
-	"description": "Makes indentation easier to read",
-	"version": "0.3.2",
-	"publisher": "oderwat",
-  "author": {
-    "name": "Hans Raaf"
-  },
-  "icon": "assets/icon.png",
-	"license": "MIT",
-	"engines": {
-		"vscode": "0.10.x"
-	},
-  "repository": {
-    "url": "https://github.com/oderwat/vscode-indent-rainbow.git",
-    "type": "git"
-  },
-  "bugs": {
+    "name": "indent-rainbow",
+    "description": "Makes indentation easier to read",
+    "version": "0.4.0",
+    "publisher": "oderwat",
+    "author": {
+        "name": "Hans Raaf"
+    },
+    "icon": "assets/icon.png",
+    "license": "MIT",
+    "engines": {
+        "vscode": "0.10.x"
+    },
+    "repository": {
+        "url": "https://github.com/oderwat/vscode-indent-rainbow.git",
+        "type": "git"
+    },
+    "bugs": {
         "url": "https://github.com/oderwat/vscode-indent-rainbow/issues"
-	},
-	"categories": [
-		"Other"
-	],
-	"activationEvents": [
-		"*"
-	],
-  "contributes": {
-    "configuration": {
-        "type": "object",
-        "title": "Indent-Rainbow configuration",
-        "properties": {
-            "indentRainbow.includedLanguages": {
-                "type": "array",
-                "default": [],
-                "description": "For which languages indent-rainbow should be activated (if empty it means all)."
-            },
-            "indentRainbow.excludedLanguages": {
-                "type": "array",
-                "default": [],
-                "description": "For which languages indent-rainbow should be deactivated (if empty it means none)."
-            },
-            "indentRainbow.updateDelay": {
-                "type": "integer",
-                "default": 100,
-                "description": "The delay in ms until the editor gets updated."
-            },
-            "indentRainbow.indentSetter": {
-                "type": "object",
-                "default": {},
-                "description": "Automatically change indent settings for languages (see README.md for details)."
+    },
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [
+        "*"
+    ],
+    "contributes": {
+        "configuration": {
+            "type": "object",
+            "title": "Indent-Rainbow configuration",
+            "properties": {
+                "indentRainbow.includedLanguages": {
+                    "type": "array",
+                    "default": [],
+                    "description": "For which languages indent-rainbow should be activated (if empty it means all)."
+                },
+                "indentRainbow.excludedLanguages": {
+                    "type": "array",
+                    "default": [],
+                    "description": "For which languages indent-rainbow should be deactivated (if empty it means none)."
+                },
+                "indentRainbow.updateDelay": {
+                    "type": "integer",
+                    "default": 100,
+                    "description": "The delay in ms until the editor gets updated."
+                },
+                "indentRainbow.indentSetter": {
+                    "type": "object",
+                    "default": {},
+                    "description": "Automatically change indent settings for languages (see README.md for details)."
+                },
+                "indentRainbow.colors": {
+                    "type": "array",
+                    "default": [
+                        "rgba(64,64,16,0.3)",
+                        "rgba(32,64,32,0.3)",
+                        "rgba(64,32,64,0.3)",
+                        "rgba(16,48,48,0.3)",
+                        "rgba(128,32,32,0.3)"
+                    ],
+                    "description": "An array with rgba strings which are used as colors."
+                }
             }
         }
+    },
+    "main": "./out/extension",
+    "scripts": {
+        "vscode:prepublish": "node ./node_modules/vscode/bin/compile",
+        "compile": "node ./node_modules/vscode/bin/compile -watch -p ./"
+    },
+    "devDependencies": {
+        "vscode": "0.10.x",
+        "typescript": "^1.6.2"
     }
-},
-	"main": "./out/extension",
-	"scripts": {
-		"vscode:prepublish": "node ./node_modules/vscode/bin/compile",
-		"compile": "node ./node_modules/vscode/bin/compile -watch -p ./"
-	},
-	"devDependencies": {
-		"vscode": "0.10.x",
-		"typescript": "^1.6.2"
-	}
 }

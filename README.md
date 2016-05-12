@@ -25,8 +25,21 @@ Although you can just use it as it is there is the possibility to configure some
 
 *Notice: Defining both `includedLanguages` and `excludedLanguages` does not make much sense. Use one of both!*
 
+You can configure your own colors by adding and tampering with the following code:
 
-The following is experimental and still buggy (do not use it :)
+```
+  // Defining custom colors instead of default "Rainbow" for dark backgrounds.
+  // (Sorry: Changing them needs an editor restart for now!)
+  "indentRainbow.colors": [
+    "rgba(64,64,16,0.3)",
+    "rgba(32,64,32,0.3)",
+    "rgba(64,32,64,0.3)",
+    "rgba(16,48,48,0.3)",
+    "rgba(128,32,32,0.3)"
+  ]
+```
+
+The following is experimental and still buggy. It will basically disable the automatic detection for languages which are not defined in this array. You may not want to use it at all :)
 
 ```
   // Automatically change indent setting (tabSize / insertSpaces) for a language.
@@ -39,7 +52,6 @@ The following is experimental and still buggy (do not use it :)
     "python": { "tabSize": 4, "insertSpaces": true },
     "php": { "tabSize": 4, "insertSpaces": false }
   }
-
 ```
 
 Build with:

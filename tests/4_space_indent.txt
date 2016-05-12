@@ -1,0 +1,7 @@
+test
+    4 spaces
+    we do 4 space indents
+        and even 4 more
+        or
+    less again
+   error marker in this line
