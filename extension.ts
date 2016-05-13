@@ -122,7 +122,7 @@ export function activate(context: vscode.ExtensionContext) {
       clearTimeout(timeout);
     }
     var updateDelay = vscode.workspace.getConfiguration('indentRainbow')['updateDelay'] || 100;
-    timeout = setTimeout(updateDecorations, 100);
+    timeout = setTimeout(updateDecorations, updateDelay);
   }
 
   function updateDecorations() {
