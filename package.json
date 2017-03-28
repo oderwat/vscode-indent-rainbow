@@ -32,12 +32,12 @@
                 "indentRainbow.includedLanguages": {
                     "type": "array",
                     "default": [],
-                    "description": "For which languages indent-rainbow should be activated (if empty it means all)."
+                    "description": "For which languages indent-rainbow should be activated. When empty will use for all languages."
                 },
                 "indentRainbow.excludedLanguages": {
                     "type": "array",
                     "default": [],
-                    "description": "For which languages indent-rainbow should be deactivated (if empty it means none)."
+                    "description": "For which languages indent-rainbow should be deactivated. When left empty will ignore."
                 },
                 "indentRainbow.updateDelay": {
                     "type": "integer",
@@ -49,16 +49,20 @@
                     "default": {},
                     "description": "Automatically change indent settings for languages (see README.md for details)."
                 },
+                "indexRanbor.error_color": {
+                    "type": "string",
+                    "default": "rgba(128,32,32,0.6)",
+                    "description": "Indent color for when there is an error in the indentation, for example if you have your tabs set to 2 spaces but the indent is 3 spaces. Can be any type of web based color format (hex, rgba, rgb)."
+                },
                 "indentRainbow.colors": {
                     "type": "array",
                     "default": [
                         "rgba(64,64,16,0.3)",
                         "rgba(32,64,32,0.3)",
                         "rgba(64,32,64,0.3)",
-                        "rgba(16,48,48,0.3)",
-                        "rgba(128,32,32,0.3)"
+                        "rgba(16,48,48,0.3)"
                     ],
-                    "description": "An array with rgba strings which are used as colors."
+                    "description": "An array with color (hex, rgba, rgb) strings which are used as colors, can be any length."
                 }
             }
         }
