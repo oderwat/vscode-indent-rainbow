@@ -40,6 +40,9 @@ You can configure your own colors by adding and tampering with the following cod
     "rgba(16,48,48,0.3)",
     "rgba(128,32,32,0.3)"
   ]
+  
+  // The indent color if the number of spaces is not a multiple of "tabSize".
+  "indentRainbow.error_color": "rgba(128,32,32,0.3)"
 ```
 
 The following is experimental and still buggy. It will basically disable the automatic detection for languages which are not defined in this array. You may not want to use it at all :)
