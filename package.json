@@ -49,7 +49,7 @@
                     "default": {},
                     "description": "Automatically change indent settings for languages (see README.md for details)."
                 },
-                "indexRanbor.error_color": {
+                "indentRainbow.error_color": {
                     "type": "string",
                     "default": "rgba(128,32,32,0.6)",
                     "description": "Indent color for when there is an error in the indentation, for example if you have your tabs set to 2 spaces but the indent is 3 spaces. Can be any type of web based color format (hex, rgba, rgb)."
