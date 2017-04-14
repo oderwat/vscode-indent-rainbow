@@ -1,7 +1,7 @@
 {
     "name": "indent-rainbow",
     "description": "Makes indentation easier to read",
-    "version": "0.4.1",
+    "version": "0.6.1",
     "publisher": "oderwat",
     "author": {
         "name": "Hans Raaf"
