@@ -4,4 +4,4 @@ test
         and even 4 more
         or
     less again
-   error marker in this line
+       no error marker in this line (because this is plaintext)

@@ -11,19 +11,20 @@ export function activate(context: vscode.ExtensionContext) {
   let doIt = false;
   let clearMe = false;
   let currentLanguageId = null;
+  let skipAllErrors = false;
 
   let activeEditor = vscode.window.activeTextEditor;
 
   // Error color gets shown when tabs aren't right,
   //  e.g. when you have your tabs set to 2 spaces but the indent is 3 spaces
-  const error_color = vscode.workspace.getConfiguration('indentRainbow')['error_color'] || "rgba(128,32,32,0.3)";
-  let error_decoration_type = vscode.window.createTextEditorDecorationType({
-      backgroundColor: error_color
+  const error_color = vscode.workspace.getConfiguration('indentRainbow')['errorColor'] || "rgba(128,32,32,0.3)";
+  const error_decoration_type = vscode.window.createTextEditorDecorationType({
+    backgroundColor: error_color
   });
 
   const ignoreLinePatterns = vscode.workspace.getConfiguration('indentRainbow')['ignoreLinePatterns'] || [
     /.*\*.*/g
-  ]
+  ];
 
 
   // Colors will cycle through, and can be any size that you want
@@ -54,7 +55,7 @@ export function activate(context: vscode.ExtensionContext) {
         ignoreLinePatterns[index] = new RegExp(ignorePattern);
       }
     }
-  })
+  });
 
   if(activeEditor) {
     indentConfig();
@@ -104,6 +105,13 @@ export function activate(context: vscode.ExtensionContext) {
         "tabSize": langCfg.tabSize,
         "insertSpaces": langCfg.insertSpaces
       };
+    }
+    var skiplang = vscode.workspace.getConfiguration('indentRainbow')['ignoreErrorLanguages'] || [];
+    skipAllErrors = false;
+    if(skiplang.length !== 0) {
+      if(skiplang.indexOf('*') !== -1 || skiplang.indexOf(currentLanguageId) !== -1) {
+        skipAllErrors = true;
+      }
     }
   }
 
@@ -171,25 +179,27 @@ export function activate(context: vscode.ExtensionContext) {
     var match;
     var ignore;
 
-    /**
-     * Checks text against ignore regex patterns from config(or default).
-     * stores the line positions of those lines in the ignoreLines array.
-     */
-    ignoreLinePatterns.forEach(ignorePattern => {
-      while (ignore = ignorePattern.exec(text)) {
-        const pos = activeEditor.document.positionAt(ignore.index);
-        const line = activeEditor.document.lineAt(pos).lineNumber;
+    if(!skipAllErrors) {
+      /**
+       * Checks text against ignore regex patterns from config(or default).
+       * stores the line positions of those lines in the ignoreLines array.
+       */
+      ignoreLinePatterns.forEach(ignorePattern => {
+        while (ignore = ignorePattern.exec(text)) {
+          const pos = activeEditor.document.positionAt(ignore.index);
+          const line = activeEditor.document.lineAt(pos).lineNumber;
 
-        ignoreLines.push(line)
-      }
-    })
+          ignoreLines.push(line);
+        }
+      });
+    }
 
     var re = new RegExp("\t","g");
 
     while (match = regEx.exec(text)) {
       const pos = activeEditor.document.positionAt(match.index);
       const line = activeEditor.document.lineAt(pos).lineNumber;
-      let skip = ignoreLines.indexOf(line) !== -1; // true if the lineNumber is in ignoreLines.
+      let skip = skipAllErrors || ignoreLines.indexOf(line) !== -1; // true if the lineNumber is in ignoreLines.
       var ma = (match[0].replace(re, tabs)).length;
       /**
        * Error handling.
@@ -198,7 +208,7 @@ export function activate(context: vscode.ExtensionContext) {
        * Checks for lines being ignored in ignoreLines array ( `skip` Boolran)
        * before considering the line an error.
        */
-      if(ma % tabsize !== 0 && !skip) {
+      if(!skip && ma % tabsize !== 0) {
         var startPos = activeEditor.document.positionAt(match.index);
         var endPos = activeEditor.document.positionAt(match.index + match[0].length);
         var decoration = { range: new vscode.Range(startPos, endPos), hoverMessage: null };

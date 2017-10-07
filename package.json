@@ -1,7 +1,7 @@
 {
     "name": "indent-rainbow",
     "description": "Makes indentation easier to read",
-    "version": "0.7.1",
+    "version": "0.7.2",
     "publisher": "oderwat",
     "author": {
         "name": "Hans Raaf"
@@ -39,6 +39,11 @@
                     "default": [],
                     "description": "For which languages indent-rainbow should be deactivated. When left empty will ignore."
                 },
+                "indentRainbow.ignoreErrorLanguages": {
+                    "type": "array",
+                    "default": ["plaintext"],
+                    "description": "For which languages indent-rainbow should skip indent error detection (use '*' to deavtivate errors for all languages)."
+                },
                 "indentRainbow.updateDelay": {
                     "type": "integer",
                     "default": 100,
@@ -49,7 +54,7 @@
                     "default": {},
                     "description": "Automatically change indent settings for languages (see README.md for details)."
                 },
-                "indentRainbow.error_color": {
+                "indentRainbow.errorColor": {
                     "type": "string",
                     "default": "rgba(128,32,32,0.6)",
                     "description": "Indent color for when there is an error in the indentation, for example if you have your tabs set to 2 spaces but the indent is 3 spaces. Can be any type of web based color format (hex, rgba, rgb)."

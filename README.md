@@ -42,8 +42,10 @@ You can configure your own colors by adding and tampering with the following cod
   ]
 
   // The indent color if the number of spaces is not a multiple of "tabSize".
-  "indentRainbow.error_color": "rgba(128,32,32,0.3)"
+  "indentRainbow.errorColor": "rgba(128,32,32,0.3)"
 ```
+
+> Notice: `errorColor` was renamed from `error_color` in earlier versions.
 
 Skip error highlighting for RegEx patterns. For example, you may want to turn off the indent errors for JSDoc's valid additional space (disabled by default), or comment lines beginning with `//`
 
@@ -52,6 +54,14 @@ Skip error highlighting for RegEx patterns. For example, you may want to turn of
   "indentRainbow.ignoreLinePatterns" : [
     "/.*\\*.*/mg", // lines begining wit *
     "/.*\\/\\/.*/g" // lines begininning with //
+  ]
+```
+
+Skip error highlighting for some or all languages. For example, you may want to turn off the indent errors for `markdown` and `plaintext`. Default is `plaintext`.
+
+```
+  "indentRainbow.ignoreErrorLanguages" : [
+    "markdown", "plaintext"
   ]
 ```
 
