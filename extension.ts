@@ -14,12 +14,17 @@ export function activate(context: vscode.ExtensionContext) {
 
   let activeEditor = vscode.window.activeTextEditor;
 
-  // Error color gets shown when tabs aren't right, 
-  //  e.g. when you have your tabs set to 2 spaces but the indent is 3 spaces 
+  // Error color gets shown when tabs aren't right,
+  //  e.g. when you have your tabs set to 2 spaces but the indent is 3 spaces
   const error_color = vscode.workspace.getConfiguration('indentRainbow')['error_color'] || "rgba(128,32,32,0.3)";
   let error_decoration_type = vscode.window.createTextEditorDecorationType({
-      backgroundColor: error_color 
+      backgroundColor: error_color
   });
+
+  const ignoreLinePatterns = vscode.workspace.getConfiguration('indentRainbow')['ignoreLinePatterns'] || [
+    /.*\*.*/g
+  ]
+
 
   // Colors will cycle through, and can be any size that you want
   const colors = vscode.workspace.getConfiguration('indentRainbow')['colors'] || [
@@ -32,9 +37,24 @@ export function activate(context: vscode.ExtensionContext) {
   // Loops through colors and creates decoration types for each one
   colors.forEach((color, index) => {
     decorationTypes[index] = vscode.window.createTextEditorDecorationType({
-      backgroundColor: color 
+      backgroundColor: color
     });
   });
+
+  // loop through ignore regex strings and convert to valid RegEx's.
+  ignoreLinePatterns.forEach((ignorePattern,index) => {
+    if (typeof ignorePattern === 'string') {
+      //parse the string for a regex
+      var regParts = ignorePattern.match(/^\/(.*?)\/([gim]*)$/);
+      if (regParts) {
+        // the parsed pattern had delimiters and modifiers. handle them.
+        ignoreLinePatterns[index] = new RegExp(regParts[1], regParts[2]);
+      } else {
+        // we got pattern string without delimiters
+        ignoreLinePatterns[index] = new RegExp(ignorePattern);
+      }
+    }
+  })
 
   if(activeEditor) {
     indentConfig();
@@ -113,7 +133,7 @@ export function activate(context: vscode.ExtensionContext) {
       // Clear decorations when language switches away
       var decor: vscode.DecorationOptions[] = [];
       for (let decorationType of decorationTypes) {
-        activeEditor.setDecorations(decorationType, decor);  
+        activeEditor.setDecorations(decorationType, decor);
       }
       clearMe = false;
     }
@@ -140,6 +160,7 @@ export function activate(context: vscode.ExtensionContext) {
     var text = activeEditor.document.getText();
     var tabsize = activeEditor.options.tabSize;
     var tabs = " ".repeat(tabsize);
+    const ignoreLines = [];
     let error_decorator: vscode.DecorationOptions[] = [];
     let decorators = [];
     decorationTypes.forEach(() => {
@@ -147,11 +168,37 @@ export function activate(context: vscode.ExtensionContext) {
       decorators.push(decorator);
     });
 
-    var re = new RegExp("\t","g");
     var match;
+    var ignore;
+
+    /**
+     * Checks text against ignore regex patterns from config(or default).
+     * stores the line positions of those lines in the ignoreLines array.
+     */
+    ignoreLinePatterns.forEach(ignorePattern => {
+      while (ignore = ignorePattern.exec(text)) {
+        const pos = activeEditor.document.positionAt(ignore.index);
+        const line = activeEditor.document.lineAt(pos).lineNumber;
+
+        ignoreLines.push(line)
+      }
+    })
+
+    var re = new RegExp("\t","g");
+
     while (match = regEx.exec(text)) {
+      const pos = activeEditor.document.positionAt(match.index);
+      const line = activeEditor.document.lineAt(pos).lineNumber;
+      let skip = ignoreLines.indexOf(line) !== -1; // true if the lineNumber is in ignoreLines.
       var ma = (match[0].replace(re, tabs)).length;
-      if(ma % tabsize !== 0) {
+      /**
+       * Error handling.
+       * When the indent spacing (as spaces) is not divisible by the tabsize,
+       * consider the indent incorrect and mark it with the error decorator.
+       * Checks for lines being ignored in ignoreLines array ( `skip` Boolran)
+       * before considering the line an error.
+       */
+      if(ma % tabsize !== 0 && !skip) {
         var startPos = activeEditor.document.positionAt(match.index);
         var endPos = activeEditor.document.positionAt(match.index + match[0].length);
         var decoration = { range: new vscode.Range(startPos, endPos), hoverMessage: null };
