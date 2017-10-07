@@ -1,7 +1,7 @@
 {
     "name": "indent-rainbow",
     "description": "Makes indentation easier to read",
-    "version": "0.6.1",
+    "version": "0.7.1",
     "publisher": "oderwat",
     "author": {
         "name": "Hans Raaf"
@@ -82,5 +82,8 @@
     "devDependencies": {
         "vscode": "0.10.x",
         "typescript": "^1.6.2"
+    },
+    "dependencies": {
+        "vsce": "^1.31.0"
     }
 }
