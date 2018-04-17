@@ -90,3 +90,7 @@ npm run vscode:prepublish
 Running `npm run compile` makes the compiler recompile on filechanges.
 
 The current version is my "first try" on a VSCode extension. I am sure stuff could be more optimized :)
+
+If you like this plugin, please consider a small donation!
+
+[![Donate with PayPal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://paypal.me/oderwat)

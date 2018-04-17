@@ -1,7 +1,7 @@
 {
     "name": "indent-rainbow",
     "description": "Makes indentation easier to read",
-    "version": "0.7.2",
+    "version": "7.2.2",
     "publisher": "oderwat",
     "author": {
         "name": "Hans Raaf"
@@ -41,7 +41,9 @@
                 },
                 "indentRainbow.ignoreErrorLanguages": {
                     "type": "array",
-                    "default": ["plaintext"],
+                    "default": [
+                        "plaintext"
+                    ],
                     "description": "For which languages indent-rainbow should skip indent error detection (use '*' to deavtivate errors for all languages)."
                 },
                 "indentRainbow.updateDelay": {
