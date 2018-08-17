@@ -15,7 +15,7 @@ It uses the current editor window tabsize and can handle mixed tab + spaces but 
 
 Although you can just use it as it is there is the possibility to configure some aspects of the extension:
 
-```
+```js
   // For which languages indent-rainbow should be activated (if empty it means all).
   "indentRainbow.includedLanguages": [] // for example ["nim", "nims", "python"]
 
@@ -30,7 +30,7 @@ Although you can just use it as it is there is the possibility to configure some
 
 You can configure your own colors by adding and tampering with the following code:
 
-```
+```js
   // Defining custom colors instead of default "Rainbow" for dark backgrounds.
   // (Sorry: Changing them needs an editor restart for now!)
   "indentRainbow.colors": [
@@ -49,7 +49,7 @@ You can configure your own colors by adding and tampering with the following cod
 
 Skip error highlighting for RegEx patterns. For example, you may want to turn off the indent errors for JSDoc's valid additional space (disabled by default), or comment lines beginning with `//`
 
-```
+```js
   // Example of regular expression in JSON (note double backslash to escape characters)
   "indentRainbow.ignoreLinePatterns" : [
     "/.*\\*.*/mg", // lines begining wit *
@@ -59,7 +59,7 @@ Skip error highlighting for RegEx patterns. For example, you may want to turn of
 
 Skip error highlighting for some or all languages. For example, you may want to turn off the indent errors for `markdown` and `plaintext`. Default is `plaintext`.
 
-```
+```js
   "indentRainbow.ignoreErrorLanguages" : [
     "markdown", "plaintext"
   ]
@@ -67,7 +67,7 @@ Skip error highlighting for some or all languages. For example, you may want to 
 
 The following is experimental and still buggy. It will basically disable the automatic detection for languages which are not defined in this array. You may not want to use it at all :)
 
-```
+```js
   // Automatically change indent setting (tabSize / insertSpaces) for a language.
   "indentRainbow.indentSetter": {} // do nothing as default
 
