@@ -3,13 +3,13 @@
 ## A simple extension to make indentation more readable
 -------------------
 
-This extension colorises the indentation in front of your text alternating four different colors on each step. Some may find it helpfull in writing code for Nim or Python.
+This extension colorizes the indentation in front of your text alternating four different colors on each step. Some may find it helpful in writing code for Nim or Python.
 
 ![Example](https://raw.githubusercontent.com/oderwat/vscode-indent-rainbow/master/assets/example.png)
 
 Get it here: [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=oderwat.indent-rainbow)
 
-It uses the current editor window tabsize and can handle mixed tab + spaces but that is not recommended. In addition it visibly marks lines where the indentation is not a multiple of the tabsize. This should help to find problems with indentation in some situations.
+It uses the current editor window tab size and can handle mixed tab + spaces but that is not recommended. In addition it visibly marks lines where the indentation is not a multiple of the tab size. This should help to find problems with indentation in some situations.
 
 ### Configuration
 
@@ -87,7 +87,7 @@ npm install
 npm run vscode:prepublish
 ```
 
-Running `npm run compile` makes the compiler recompile on filechanges.
+Running `npm run compile` makes the compiler recompile on file change.
 
 The current version is my "first try" on a VSCode extension. I am sure stuff could be more optimized :)
 

@@ -1,0 +1,4 @@
+#!/bin/bash
+
+rm -f indent-rainbow-*.vsix
+npm install && vsce package && vsce publish
