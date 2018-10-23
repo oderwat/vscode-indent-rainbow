@@ -25,6 +25,13 @@
         "*"
     ],
     "contributes": {
+        "commands": [
+            {
+                "command": "indent-rainbow.toggle",
+                "category": "indent-rainbow",
+                "title": "toggle"
+            }
+        ],
         "configuration": {
             "type": "object",
             "title": "Indent-Rainbow configuration",
