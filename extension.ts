@@ -195,12 +195,14 @@ export function activate(context: vscode.ExtensionContext) {
     }
 
     var re = new RegExp("\t","g");
+    let defaultIndentCharRegExp = null;
 
     while (match = regEx.exec(text)) {
       const pos = activeEditor.document.positionAt(match.index);
       const line = activeEditor.document.lineAt(pos).lineNumber;
       let skip = skipAllErrors || ignoreLines.indexOf(line) !== -1; // true if the lineNumber is in ignoreLines.
       var ma = (match[0].replace(re, tabs)).length;
+      defaultIndentCharRegExp = defaultIndentCharRegExp || new RegExp(match[0].substr(0,1), "g");
       /**
        * Error handling.
        * When the indent spacing (as spaces) is not divisible by the tabsize,
@@ -219,6 +221,7 @@ export function activate(context: vscode.ExtensionContext) {
         var o = 0;
         var n = 0;
         while(n < l) {
+          const s = n;
           var startPos = activeEditor.document.positionAt(match.index + n);
           if(m[n] === "\t") {
             n++;
@@ -227,8 +230,15 @@ export function activate(context: vscode.ExtensionContext) {
           }
           var endPos = activeEditor.document.positionAt(match.index + n);
           var decoration = { range: new vscode.Range(startPos, endPos), hoverMessage: null };
-          let decorator_index = o % decorators.length;
-          decorators[decorator_index].push(decoration);
+          if (0 === match[0].substring(s, n).replace(defaultIndentCharRegExp, "").length)
+          {
+            let decorator_index = o % decorators.length;
+            decorators[decorator_index].push(decoration);
+          }
+          else
+          {
+            error_decorator.push(decoration);
+          }
           o++;
         }
       }
