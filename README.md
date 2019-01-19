@@ -43,6 +43,10 @@ You can configure your own colors by adding and tampering with the following cod
 
   // The indent color if the number of spaces is not a multiple of "tabSize".
   "indentRainbow.errorColor": "rgba(128,32,32,0.3)"
+
+  // The indent color when there is a mix between spaces and tabs.
+  // (To be disabled this coloring if set a empty string.)
+  "indentRainbow.tabmixColor": "rgba(128,32,32,0.3)"
 ```
 
 > Notice: `errorColor` was renamed from `error_color` in earlier versions.

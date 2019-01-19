@@ -22,6 +22,11 @@ export function activate(context: vscode.ExtensionContext) {
     backgroundColor: error_color
   });
 
+  const tabmix_color = vscode.workspace.getConfiguration('indentRainbow')['tabmixColor'];
+  const tabmix_decoration_type = "" !== tabmix_color ? vscode.window.createTextEditorDecorationType({
+    backgroundColor: tabmix_color
+  }) : null;
+
   const ignoreLinePatterns = vscode.workspace.getConfiguration('indentRainbow')['ignoreLinePatterns'] || [
     /.*\*.*/g
   ];
@@ -170,6 +175,7 @@ export function activate(context: vscode.ExtensionContext) {
     var tabs = " ".repeat(tabsize);
     const ignoreLines = [];
     let error_decorator: vscode.DecorationOptions[] = [];
+    let tabmix_decorator: vscode.DecorationOptions[] = tabmix_decoration_type ? []: null;
     let decorators = [];
     decorationTypes.forEach(() => {
       let decorator: vscode.DecorationOptions[] = [];
@@ -230,14 +236,14 @@ export function activate(context: vscode.ExtensionContext) {
           }
           var endPos = activeEditor.document.positionAt(match.index + n);
           var decoration = { range: new vscode.Range(startPos, endPos), hoverMessage: null };
-          if (0 === match[0].substring(s, n).replace(defaultIndentCharRegExp, "").length)
+          if (tabmix_decorator && 0 < match[0].substring(s, n).replace(defaultIndentCharRegExp, "").length)
           {
-            let decorator_index = o % decorators.length;
-            decorators[decorator_index].push(decoration);
+            tabmix_decorator.push(decoration);
           }
           else
           {
-            error_decorator.push(decoration);
+            let decorator_index = o % decorators.length;
+            decorators[decorator_index].push(decoration);
           }
           o++;
         }
@@ -247,6 +253,7 @@ export function activate(context: vscode.ExtensionContext) {
       activeEditor.setDecorations(decorationType, decorators[index]);
     });
     activeEditor.setDecorations(error_decoration_type, error_decorator);
+    tabmix_decoration_type && activeEditor.setDecorations(tabmix_decoration_type, tabmix_decorator);
     clearMe = true;
   }
 }
