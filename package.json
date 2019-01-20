@@ -61,6 +61,11 @@
                     "default": "rgba(128,32,32,0.6)",
                     "description": "Indent color for when there is an error in the indentation, for example if you have your tabs set to 2 spaces but the indent is 3 spaces. Can be any type of web based color format (hex, rgba, rgb)."
                 },
+                "indentRainbow.tabmixColor": {
+                    "type": "string",
+                    "default": "rgba(128,32,32,0.6)",
+                    "description": "Indent color for when there is a mix between spaces and tabs in the indentation. Can be any type of web based color format (hex, rgba, rgb) or a empty string(to be disabled this coloring)."
+                },
                 "indentRainbow.ignoreLinePatterns": {
                     "type": "array",
                     "default": [
