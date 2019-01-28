@@ -1,7 +1,7 @@
 {
     "name": "indent-rainbow",
     "description": "Makes indentation easier to read",
-    "version": "7.2.4",
+    "version": "7.2.5",
     "publisher": "oderwat",
     "author": {
         "name": "Hans Raaf"
@@ -25,6 +25,13 @@
         "*"
     ],
     "contributes": {
+        "commands": [
+            {
+                "command": "indent-rainbow.toggle",
+                "category": "indent-rainbow",
+                "title": "toggle"
+            }
+        ],
         "configuration": {
             "type": "object",
             "title": "Indent-Rainbow configuration",
