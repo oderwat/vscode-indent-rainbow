@@ -1,7 +1,7 @@
 {
     "name": "indent-rainbow",
     "description": "Makes indentation easier to read",
-    "version": "7.2.4",
+    "version": "7.3.0",
     "publisher": "oderwat",
     "author": {
         "name": "Hans Raaf"
@@ -93,11 +93,11 @@
         "postinstall": "node ./node_modules/vscode/bin/install"
     },
     "devDependencies": {
+        "@types/node": "^6.0.40",
         "typescript": "^2.0.3",
-        "vscode": "^1.1.21",
-        "@types/node": "^6.0.40"
+        "vscode": "^1.1.30"
     },
     "dependencies": {
-        "vsce": "^1.46.0"
+        "vsce": "^1.57.1"
     }
 }
