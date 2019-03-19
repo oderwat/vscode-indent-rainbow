@@ -1,7 +1,7 @@
 {
     "name": "indent-rainbow",
     "description": "Makes indentation easier to read",
-    "version": "7.3.0",
+    "version": "7.4.0",
     "publisher": "oderwat",
     "author": {
         "name": "Hans Raaf"
@@ -36,13 +36,15 @@
                 },
                 "indentRainbow.excludedLanguages": {
                     "type": "array",
-                    "default": [],
+                    "default": [
+                        "plaintext"
+                    ],
                     "description": "For which languages indent-rainbow should be deactivated. When left empty will ignore."
                 },
                 "indentRainbow.ignoreErrorLanguages": {
                     "type": "array",
                     "default": [
-                        "plaintext"
+                        "markdown"
                     ],
                     "description": "For which languages indent-rainbow should skip indent error detection (use '*' to deavtivate errors for all languages)."
                 },
@@ -63,15 +65,16 @@
                 },
                 "indentRainbow.tabmixColor": {
                     "type": "string",
-                    "default": "rgba(128,32,32,0.6)",
+                    "default": "rgba(128,32,96,0.6)",
                     "description": "Indent color for when there is a mix between spaces and tabs in the indentation. Can be any type of web based color format (hex, rgba, rgb) or a empty string(to be disabled this coloring)."
                 },
                 "indentRainbow.ignoreLinePatterns": {
                     "type": "array",
                     "default": [
-                        "/.*\\*.*/g"
+                        "/[ \t]* [*]/g",
+                        "/[ \t]+[/]{2}/g"
                     ],
-                    "description": "Skip error highlighting for RegEx patterns. Defaults to ignoring JSDoc comments with a single extra space."
+                    "description": "Skip error highlighting for RegEx patterns. Defaults to c/cpp decorated block and full line comments."
                 },
                 "indentRainbow.colors": {
                     "type": "array",

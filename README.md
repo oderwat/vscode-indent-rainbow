@@ -20,7 +20,7 @@ Although you can just use it as it is there is the possibility to configure some
   "indentRainbow.includedLanguages": [] // for example ["nim", "nims", "python"]
 
   // For which languages indent-rainbow should be deactivated (if empty it means none).
-  "indentRainbow.excludedLanguages": [] // for example ["plaintext"]
+  "indentRainbow.excludedLanguages": ["plaintext"]
 
   // The delay in ms until the editor gets updated.
   "indentRainbow.updateDelay": 100 // 10 makes it super fast but may cost more resources
@@ -34,19 +34,18 @@ You can configure your own colors by adding and tampering with the following cod
   // Defining custom colors instead of default "Rainbow" for dark backgrounds.
   // (Sorry: Changing them needs an editor restart for now!)
   "indentRainbow.colors": [
-    "rgba(64,64,16,0.3)",
-    "rgba(32,64,32,0.3)",
-    "rgba(64,32,64,0.3)",
-    "rgba(16,48,48,0.3)",
-    "rgba(128,32,32,0.3)"
+    "rgba(255,255,64,0.07)",
+    "rgba(127,255,127,0.07)",
+    "rgba(255,127,255,0.07)",
+    "rgba(79,236,236,0.07)"
   ]
 
   // The indent color if the number of spaces is not a multiple of "tabSize".
-  "indentRainbow.errorColor": "rgba(128,32,32,0.3)"
+  "indentRainbow.errorColor": "rgba(128,32,32,0.6)"
 
   // The indent color when there is a mix between spaces and tabs.
-  // (To be disabled this coloring if set a empty string.)
-  "indentRainbow.tabmixColor": "rgba(128,32,32,0.3)"
+  // To be disabled this coloring set this to an empty string.
+  "indentRainbow.tabmixColor": "rgba(128,32,96,0.6)"
 ```
 
 > Notice: `errorColor` was renamed from `error_color` in earlier versions.
@@ -56,34 +55,19 @@ Skip error highlighting for RegEx patterns. For example, you may want to turn of
 ```js
   // Example of regular expression in JSON (note double backslash to escape characters)
   "indentRainbow.ignoreLinePatterns" : [
-    "/.*\\*.*/mg", // lines begining wit *
-    "/.*\\/\\/.*/g" // lines begininning with //
+    "/[ \t]* [*]/g", // lines begining with <whitespace><space>*
+    "/[ \t]+[/]{2}/g" // lines begininning with <whitespace>//
   ]
 ```
 
-Skip error highlighting for some or all languages. For example, you may want to turn off the indent errors for `markdown` and `plaintext`. Default is `plaintext`.
+Skip error highlighting for some or all languages. For example, you may want to turn off the indent errors for `markdown` and `haskell` (which is the default)
 
 ```js
   "indentRainbow.ignoreErrorLanguages" : [
-    "markdown", "plaintext"
+    "markdown",
+    "haskell"
   ]
 ```
-
-The following is experimental and still buggy. It will basically disable the automatic detection for languages which are not defined in this array. You may not want to use it at all :)
-
-```js
-  // Automatically change indent setting (tabSize / insertSpaces) for a language.
-  "indentRainbow.indentSetter": {} // do nothing as default
-
-  // Example for language based indentation:
-  "indentRainbow.indentSetter": {
-    "nim": { "tabSize": 2, "insertSpaces": true },
-    "nims": { "tabSize": 2, "insertSpaces": true },
-    "python": { "tabSize": 4, "insertSpaces": true },
-    "php": { "tabSize": 4, "insertSpaces": false }
-  }
-```
-
 Build with:
 
 ```

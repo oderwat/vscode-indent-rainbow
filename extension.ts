@@ -22,15 +22,12 @@ export function activate(context: vscode.ExtensionContext) {
     backgroundColor: error_color
   });
 
-  const tabmix_color = vscode.workspace.getConfiguration('indentRainbow')['tabmixColor'];
+  const tabmix_color = vscode.workspace.getConfiguration('indentRainbow')['tabmixColor'] || "";
   const tabmix_decoration_type = "" !== tabmix_color ? vscode.window.createTextEditorDecorationType({
     backgroundColor: tabmix_color
   }) : null;
 
-  const ignoreLinePatterns = vscode.workspace.getConfiguration('indentRainbow')['ignoreLinePatterns'] || [
-    /.*\*.*/g
-  ];
-
+  const ignoreLinePatterns = vscode.workspace.getConfiguration('indentRainbow')['ignoreLinePatterns'] || [];
 
   // Colors will cycle through, and can be any size that you want
   const colors = vscode.workspace.getConfiguration('indentRainbow')['colors'] || [
@@ -96,21 +93,6 @@ export function activate(context: vscode.ExtensionContext) {
   }
 
   function indentConfig() {
-    // Set tabSize and insertSpaces from the config if specified for this languageId
-    var indentSetter = vscode.workspace.getConfiguration('indentRainbow')['indentSetter'] || [];
-    // we do nothing if we have {} to not interrupt other extensions for indent settings
-    if(! isEmptyObject(indentSetter) ) {
-      var langCfg = indentSetter[ activeEditor.document.languageId ];
-      if( langCfg === undefined ) {
-        // if we do not have any defaults get those from the editor config itself
-        // this seems to break detectindentation = true :(
-        langCfg = vscode.workspace.getConfiguration('editor');
-      }
-      vscode.window.activeTextEditor.options = {
-        "tabSize": langCfg.tabSize,
-        "insertSpaces": langCfg.insertSpaces
-      };
-    }
     var skiplang = vscode.workspace.getConfiguration('indentRainbow')['ignoreErrorLanguages'] || [];
     skipAllErrors = false;
     if(skiplang.length !== 0) {
@@ -194,7 +176,6 @@ export function activate(context: vscode.ExtensionContext) {
         while (ignore = ignorePattern.exec(text)) {
           const pos = activeEditor.document.positionAt(ignore.index);
           const line = activeEditor.document.lineAt(pos).lineNumber;
-
           ignoreLines.push(line);
         }
       });
@@ -207,8 +188,8 @@ export function activate(context: vscode.ExtensionContext) {
       const pos = activeEditor.document.positionAt(match.index);
       const line = activeEditor.document.lineAt(pos).lineNumber;
       let skip = skipAllErrors || ignoreLines.indexOf(line) !== -1; // true if the lineNumber is in ignoreLines.
+      var thematch = match[0];
       var ma = (match[0].replace(re, tabs)).length;
-      defaultIndentCharRegExp = defaultIndentCharRegExp || new RegExp(match[0].substr(0,1), "g");
       /**
        * Error handling.
        * When the indent spacing (as spaces) is not divisible by the tabsize,
@@ -236,12 +217,25 @@ export function activate(context: vscode.ExtensionContext) {
           }
           var endPos = activeEditor.document.positionAt(match.index + n);
           var decoration = { range: new vscode.Range(startPos, endPos), hoverMessage: null };
-          if (tabmix_decorator && 0 < match[0].substring(s, n).replace(defaultIndentCharRegExp, "").length)
-          {
-            tabmix_decorator.push(decoration);
+          var sc=0;
+          var tc=0;
+          if (!skip && tabmix_decorator) {
+            // counting (split is said to be faster than match()
+            // only do it if we don't already skip all errors
+            var tc=(thematch.split("\t").length - 1)
+            if(tc) {
+              // only do this if we already have some tabs
+              var sc=(thematch.split(" ").length - 1)
+            }
+            // if we have (only) "spaces" in a "tab" indent file we
+            // just ignore that, because we don't know if there
+            // should really be tabs or spaces for indentation
+            // If you (yes you!) know how to find this out without
+            // infering this from the file, speak up :)
           }
-          else
-          {
+          if(sc>0 && tc>0) {
+            tabmix_decorator.push(decoration);
+          } else {
             let decorator_index = o % decorators.length;
             decorators[decorator_index].push(decoration);
           }
