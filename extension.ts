@@ -31,10 +31,12 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Colors will cycle through, and can be any size that you want
   const colors = vscode.workspace.getConfiguration('indentRainbow')['colors'] || [
-    "rgba(255,255,64,0.07)",
-    "rgba(127,255,127,0.07)",
-    "rgba(255,127,255,0.07)",
-    "rgba(79,236,236,0.07)"
+    "rgba(199, 206, 234, 0.45)",
+    "rgba(181, 234, 215, 0.45)",
+    "rgba(226, 240, 203, 0.45)",
+    "rgba(255, 218, 193, 0.45)",
+    "rgba(255, 183, 178, 0.45)",
+    "rgba(255, 154, 162, 0.45)"
   ];
 
   // Loops through colors and creates decoration types for each one
