@@ -29,6 +29,65 @@
             "type": "object",
             "title": "Indent-Rainbow configuration",
             "properties": {
+                "indentRainbow": {
+                    "includedLanguages": {
+                        "type": "array",
+                        "default": [],
+                        "description": "For which languages indent-rainbow should be activated. When empty will use for all languages."
+                    },
+                    "excludedLanguages": {
+                        "type": "array",
+                        "default": [
+                            "plaintext"
+                        ],
+                        "description": "For which languages indent-rainbow should be deactivated. When left empty will ignore."
+                    },
+                    "ignoreErrorLanguages": {
+                        "type": "array",
+                        "default": [
+                            "markdown"
+                        ],
+                        "description": "For which languages indent-rainbow should skip indent error detection (use '*' to deavtivate errors for all languages)."
+                    },
+                    "updateDelay": {
+                        "type": "integer",
+                        "default": 100,
+                        "description": "The delay in ms until the editor gets updated."
+                    },
+                    "indentSetter": {
+                        "type": "object",
+                        "default": {},
+                        "description": "Automatically change indent settings for languages (see README.md for details)."
+                    },
+                    "errorColor": {
+                        "type": "string",
+                        "default": "rgba(128,32,32,0.6)",
+                        "description": "Indent color for when there is an error in the indentation, for example if you have your tabs set to 2 spaces but the indent is 3 spaces. Can be any type of web based color format (hex, rgba, rgb)."
+                    },
+                    "tabmixColor": {
+                        "type": "string",
+                        "default": "rgba(128,32,96,0.6)",
+                        "description": "Indent color for when there is a mix between spaces and tabs in the indentation. Can be any type of web based color format (hex, rgba, rgb) or a empty string(to be disabled this coloring)."
+                    },
+                    "ignoreLinePatterns": {
+                        "type": "array",
+                        "default": [
+                            "/[ \t]* [*]/g",
+                            "/[ \t]+[/]{2}/g"
+                        ],
+                        "description": "Skip error highlighting for RegEx patterns. Defaults to c/cpp decorated block and full line comments."
+                    },
+                    "colors": {
+                        "type": "array",
+                        "default": [
+                            "rgba(255,255,64,0.07)",
+                            "rgba(127,255,127,0.07)",
+                            "rgba(255,127,255,0.07)",
+                            "rgba(79,236,236,0.07)"
+                        ],
+                        "description": "An array with color (hex, rgba, rgb) strings which are used as colors, can be any length."
+                    }
+                },
                 "indentRainbow.includedLanguages": {
                     "type": "array",
                     "default": [],
