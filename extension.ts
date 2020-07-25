@@ -19,6 +19,7 @@ export function activate(context: vscode.ExtensionContext) {
     includedLanguages,
     tabmix_decoration_type,
     updateDelay,
+    minLevel,
   } = getUserPreferences();
 
   const error_decoration_type = vscode.window.createTextEditorDecorationType({
@@ -125,33 +126,37 @@ export function activate(context: vscode.ExtensionContext) {
       n += matchedText[n] === '\t' ? 1 : activeEditor.options.tabSize;
 
       var endPos = activeEditor.document.positionAt(match.index + Math.min(indentation, n));
-      const decoration = getDecoration(startPos, endPos);
 
-      let spaceCount = 0;
-      let tabCount = 0;
+      if (startPos.character >= minLevel * activeEditor.options.tabSize) {
+        const decoration = getDecoration(startPos, endPos);
 
-      if (!skip && tabmix_decorator) {
-        // counting (split is said to be faster than match()
-        // only do it if we don't already skip all errors
-        tabCount = matchedText.split('\t').length - 1;
-        if (tabCount) {
-          // only do this if we already have some tabs
-          spaceCount = matchedText.split(' ').length - 1;
+        let spaceCount = 0;
+        let tabCount = 0;
+
+        if (!skip && tabmix_decorator) {
+          // counting (split is said to be faster than match()
+          // only do it if we don't already skip all errors
+          tabCount = matchedText.split('\t').length - 1;
+          if (tabCount) {
+            // only do this if we already have some tabs
+            spaceCount = matchedText.split(' ').length - 1;
+          }
+          // if we have (only) "spaces" in a "tab" indent file we
+          // just ignore that, because we don't know if there
+          // should really be tabs or spaces for indentation
+          // If you (yes you!) know how to find this out without
+          // infering this from the file, speak up :)
         }
-        // if we have (only) "spaces" in a "tab" indent file we
-        // just ignore that, because we don't know if there
-        // should really be tabs or spaces for indentation
-        // If you (yes you!) know how to find this out without
-        // infering this from the file, speak up :)
-      }
 
-      if (spaceCount > 0 && tabCount > 0) {
-        tabmix_decorator.push(decoration);
-      } else {
-        let decorator_index = o % decorators.length;
-        decorators[decorator_index].push(decoration);
+        if (spaceCount > 0 && tabCount > 0) {
+          tabmix_decorator.push(decoration);
+        } else {
+          let decorator_index = o % decorators.length;
+          decorators[decorator_index].push(decoration);
+        }
+
+        o++;
       }
-      o++;
     }
   }
 
@@ -280,6 +285,7 @@ const getUserPreferences = () => {
    */
   const error_color = config.errorColor || 'rgba(128,32,32,0.3)';
   const updateDelay: number = config.updateDelay || 100;
+  const minLevel: number = config.minLevel || 0;
   const ignoredLanguages: string[] = config.ignoreErrorLanguages || [];
   const includedLanguages = config.includedLanguages || [];
   const excludedLanguages = config.excludedLanguages || [];
@@ -307,6 +313,7 @@ const getUserPreferences = () => {
     includedLanguages,
     tabmix_decoration_type,
     updateDelay,
+    minLevel,
   };
 };
 
