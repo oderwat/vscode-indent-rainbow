@@ -52,17 +52,6 @@ export function activate(context: vscode.ExtensionContext) {
        * Checks text against ignore regex patterns from config(or default).
        * stores the line positions of those lines in the ignoreLines array.
        */
-      // ignoreLinePatterns.forEach(ignorePattern => {
-      //   let ignored = ignorePattern.exec(text);
-
-      //   while (match) {
-      //     const pos = activeEditor.document.positionAt(ignored.index);
-      //     const line = activeEditor.document.lineAt(pos).lineNumber;
-      //     ignoredLines.push(line);
-
-      //     match = ignorePattern.exec(text);
-      //   }
-      // });
 
       let matches = matchesAny(text, ignoreLinePatterns);
 
@@ -85,11 +74,6 @@ export function activate(context: vscode.ExtensionContext) {
       decorators.push(decorator);
     });
 
-    // TODO: use map instead of array
-    const dercoratorsMap = new Map<vscode.TextEditorDecorationType,
-      vscode.DecorationOptions[]>();
-    decorationTypes.forEach(type => dercoratorsMap.set(type, []));
-
     let match: RegExpExecArray = regEx.exec(text);
     while (match) {
       const pos = activeEditor.document.positionAt(match.index);
@@ -108,7 +92,7 @@ export function activate(context: vscode.ExtensionContext) {
         const decoration = getErrorDecoration(activeEditor, match);
         error_decorator.push(decoration);
       } else {
-        changeTheWorld(skip, match, tabmix_decorator, decorators);
+        createDecorations(skip, match, tabmix_decorator, decorators, indentation);
       }
 
       match = regEx.exec(text);
@@ -124,13 +108,14 @@ export function activate(context: vscode.ExtensionContext) {
   }
 
   /**
-   * A function that is doing too much, will be refactored soon
+   * This function could use some refactoring, it is doing a litle too much
    */
-  function changeTheWorld(
+  function createDecorations(
     skip: boolean,
     match: RegExpExecArray,
     tabmix_decorator: vscode.DecorationOptions[],
     decorators: vscode.DecorationOptions[][],
+    indentation: number,
   ) {
     var matchedText = match[0];
     var o = 0;
@@ -139,7 +124,7 @@ export function activate(context: vscode.ExtensionContext) {
       var startPos = activeEditor.document.positionAt(match.index + n);
       n += matchedText[n] === '\t' ? 1 : activeEditor.options.tabSize;
 
-      var endPos = activeEditor.document.positionAt(match.index + n);
+      var endPos = activeEditor.document.positionAt(match.index + Math.min(indentation, n));
       const decoration = getDecoration(startPos, endPos);
 
       let spaceCount = 0;
@@ -284,6 +269,8 @@ function getErrorDecoration(activeEditor: vscode.TextEditor, match: RegExpExecAr
   return decoration;
 }
 
+// If we want to make it so settings take effect more quickly (such as colors taking effect without the need of reloading the window)
+// this can be called again instead of using the value from the first reading.
 const getUserPreferences = () => {
   const config = vscode.workspace.getConfiguration('indentRainbow');
 
