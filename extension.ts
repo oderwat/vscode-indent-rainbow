@@ -9,14 +9,15 @@ export function activate(context: vscode.ExtensionContext) {
   let currentLanguageId = null;
   let skipAllErrors = false;
 
-  let activeEditor = vscode.window.activeTextEditor;
-
   const {
     colors,
-    ignoreLinePatterns,
-    ignoredLanguages,
-    tabmix_color,
     error_color,
+    excludedLanguages,
+    ignoredLanguages,
+    ignoreLinePatterns,
+    includedLanguages,
+    tabmix_color,
+    updateDelay,
   } = getUserPreferences();
 
   const error_decoration_type = vscode.window.createTextEditorDecorationType({ backgroundColor: error_color });
@@ -26,6 +27,9 @@ export function activate(context: vscode.ExtensionContext) {
 
   const decorationTypes = getDecorationTypes(colors);
 
+  let activeEditor = vscode.window.activeTextEditor;
+  setupEditorListeners();
+
   if (activeEditor) {
     indentConfig();
   }
@@ -34,47 +38,7 @@ export function activate(context: vscode.ExtensionContext) {
     triggerUpdateDecorations();
   }
 
-  vscode.window.onDidChangeActiveTextEditor((editor) => {
-    activeEditor = editor;
-    if (editor) {
-      indentConfig();
-    }
-
-    if (editor && checkLanguage()) {
-      triggerUpdateDecorations();
-    }
-  },
-    null,
-    context.subscriptions
-  );
-
-  vscode.workspace.onDidChangeTextDocument((event) => {
-    if (activeEditor) {
-      indentConfig();
-    }
-
-    if (
-      activeEditor &&
-      event.document === activeEditor.document &&
-      checkLanguage()
-    ) {
-      triggerUpdateDecorations();
-    }
-  },
-    null,
-    context.subscriptions
-  );
-
   var timeout = null;
-
-  function triggerUpdateDecorations() {
-    if (timeout) {
-      clearTimeout(timeout);
-    }
-    var updateDelay =
-      vscode.workspace.getConfiguration('indentRainbow')['updateDelay'] || 100;
-    timeout = setTimeout(updateDecorations, updateDelay);
-  }
 
   function updateDecorations() {
     /**
@@ -142,10 +106,9 @@ export function activate(context: vscode.ExtensionContext) {
     const dercoratorsMap = new Map<vscode.TextEditorDecorationType, vscode.DecorationOptions[]>();
     decorationTypes.forEach(type => dercoratorsMap.set(type, []));
 
-    let match: RegExpExecArray;
-    var re = new RegExp('\t', 'g');
-
-    while ((match = regEx.exec(text))) {
+    const re = new RegExp('\t', 'g');
+    let match: RegExpExecArray = regEx.exec(text);
+    while (match) {
       const pos = activeEditor.document.positionAt(match.index);
       const line = activeEditor.document.lineAt(pos);
       const skip = skipAllErrors || matchesAny(line.text, ignoreLinePatterns); // true if the lineNumber is in ignoreLines.
@@ -159,15 +122,13 @@ export function activate(context: vscode.ExtensionContext) {
        * before considering the line an error.
        */
       if (!skip && ma % tabsize !== 0) {
-        let startPos = activeEditor.document.positionAt(match.index);
-        let endPos = activeEditor.document.positionAt(
-          match.index + match[0].length
-        );
-        const decoration = getDecoration(startPos, endPos);
+        const decoration = getErrorDecoration(activeEditor, match);
         error_decorator.push(decoration);
       } else {
         changeTheWorld(skip, thematch);
       }
+
+      match = regEx.exec(text);
     }
 
     decorationTypes.forEach((decorationType, index) => {
@@ -178,6 +139,45 @@ export function activate(context: vscode.ExtensionContext) {
 
     clearMe = true;
   }
+
+  function triggerUpdateDecorations() {
+    if (timeout) {
+      clearTimeout(timeout);
+    }
+    timeout = setTimeout(updateDecorations, updateDelay);
+  }
+
+  function setupEditorListeners() {
+    vscode.window.onDidChangeActiveTextEditor((editor) => {
+      activeEditor = editor;
+      if (editor) {
+        indentConfig();
+      }
+
+      if (editor && checkLanguage()) {
+        triggerUpdateDecorations();
+      }
+    },
+      null,
+      context.subscriptions
+    );
+
+    vscode.workspace.onDidChangeTextDocument((event) => {
+      if (activeEditor) {
+        indentConfig();
+      }
+
+      if (activeEditor &&
+        event.document === activeEditor.document &&
+        checkLanguage()) {
+        triggerUpdateDecorations();
+      }
+    },
+      null,
+      context.subscriptions
+    );
+  }
+
   function isEmptyObject(obj) {
 
     return Object.getOwnPropertyNames(obj).length === 0;
@@ -199,25 +199,16 @@ export function activate(context: vscode.ExtensionContext) {
   function checkLanguage() {
     if (activeEditor) {
       if (currentLanguageId !== activeEditor.document.languageId) {
-        var inclang =
-          vscode.workspace.getConfiguration('indentRainbow')[
-          'includedLanguages'
-          ] || [];
-        var exclang =
-          vscode.workspace.getConfiguration('indentRainbow')[
-          'excludedLanguages'
-          ] || [];
-
         currentLanguageId = activeEditor.document.languageId;
         doIt = true;
-        if (inclang.length !== 0) {
-          if (inclang.indexOf(currentLanguageId) === -1) {
+        if (includedLanguages.length !== 0) {
+          if (includedLanguages.indexOf(currentLanguageId) === -1) {
             doIt = false;
           }
         }
 
-        if (doIt && exclang.length !== 0) {
-          if (exclang.indexOf(currentLanguageId) !== -1) {
+        if (doIt && excludedLanguages.length !== 0) {
+          if (excludedLanguages.indexOf(currentLanguageId) !== -1) {
             doIt = false;
           }
         }
@@ -244,32 +235,31 @@ const getDecoration = (start, end): vscode.DecorationOptions => ({
   hoverMessage: null,
 });
 
+function getErrorDecoration(activeEditor: vscode.TextEditor, match: RegExpExecArray) {
+  let startPos = activeEditor.document.positionAt(match.index);
+  let endPos = activeEditor.document.positionAt(
+    match.index + match[0].length
+  );
+  const decoration = getDecoration(startPos, endPos);
+  return decoration;
+}
+
 const getUserPreferences = () => {
-  const stringToRegex = (ignorePattern): RegExp | null => {
-    if (typeof ignorePattern === 'string') {
-      //parse the string for a regex
-      const regParts = ignorePattern.match(/^\/(.*?)\/([gim]*)$/);
-
-      if (regParts) {
-        // the parsed pattern had delimiters and modifiers. handle them.
-        return new RegExp(regParts[1], regParts[2]);
-      } else {
-        // we got pattern string without delimiters
-        return new RegExp(ignorePattern);
-      }
-    }
-
-    return null;
-  };
-
   const config = vscode.workspace.getConfiguration('indentRainbow');
 
-  // Error color gets shown when tabs aren't right,
-  //  e.g. when you have your tabs set to 2 spaces but the indent is 3 spaces
+  /**
+   * Error color gets shown when tabs aren't right,
+   *  e.g. when you have your tabs set to 2 spaces but the indent is 3 spaces
+   */
   const error_color = config.errorColor || 'rgba(128,32,32,0.3)';
-
   const tabmix_color = config.tabmixColor || '';
-
+  const updateDelay: number = config.updateDelay || 100;
+  const ignoredLanguages: string[] = config.ignoreErrorLanguages || [];
+  const includedLanguages = config.includedLanguages || [];
+  const excludedLanguages = config.excludedLanguages || [];
+  const ignoreLinePatterns: RegExp[] = (config.ignoreLinePatterns || [])
+    .map(stringToRegex)
+    .filter((r: RegExp | null) => !!r);
   // Colors will cycle through, and can be any size that you want
   const colors: string[] = config['colors'] || [
     'rgba(255,255,64,0.07)',
@@ -278,18 +268,15 @@ const getUserPreferences = () => {
     'rgba(79,236,236,0.07)',
   ];
 
-  const ignoredLanguages: string[] = config.ignoreErrorLanguages || [];
-
-  const ignoreLinePatterns: RegExp[] = (config.ignoreLinePatterns || [])
-    .map(stringToRegex) // turn strings into Regex objects then remove anything that may not be a valid Regex
-    .filter(r => !!r);
-
   return {
     colors,
-    ignoreLinePatterns,
-    ignoredLanguages,
-    tabmix_color,
     error_color,
+    excludedLanguages,
+    ignoredLanguages,
+    ignoreLinePatterns,
+    includedLanguages,
+    tabmix_color,
+    updateDelay,
   };
 };
 
@@ -313,4 +300,21 @@ const matchesAny = (text: string, expressions: RegExp[]): boolean => {
   }
 
   return false;
+};
+
+const stringToRegex = (ignorePattern): RegExp | null => {
+  if (typeof ignorePattern === 'string') {
+    //parse the string for a regex
+    const regParts = ignorePattern.match(/^\/(.*?)\/([gim]*)$/);
+
+    if (regParts) {
+      // the parsed pattern had delimiters and modifiers. handle them.
+      return new RegExp(regParts[1], regParts[2]);
+    } else {
+      // we got pattern string without delimiters
+      return new RegExp(ignorePattern);
+    }
+  }
+
+  return null;
 };
