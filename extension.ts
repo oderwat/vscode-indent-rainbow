@@ -8,6 +8,7 @@ export function activate(context: vscode.ExtensionContext) {
   let doIt = false;
   let currentLanguageId = null;
   let skipAllErrors = false;
+  let timeout = null;
 
   const {
     colors,
@@ -16,14 +17,13 @@ export function activate(context: vscode.ExtensionContext) {
     ignoredLanguages,
     ignoreLinePatterns,
     includedLanguages,
-    tabmix_color,
+    tabmix_decoration_type,
     updateDelay,
   } = getUserPreferences();
 
-  const error_decoration_type = vscode.window.createTextEditorDecorationType({ backgroundColor: error_color });
-  const tabmix_decoration_type = tabmix_color
-    ? vscode.window.createTextEditorDecorationType({ backgroundColor: tabmix_color })
-    : null;
+  const error_decoration_type = vscode.window.createTextEditorDecorationType({
+    backgroundColor: error_color
+  });
 
   const decorationTypes = getDecorationTypes(colors);
 
@@ -38,64 +38,47 @@ export function activate(context: vscode.ExtensionContext) {
     triggerUpdateDecorations();
   }
 
-  var timeout = null;
-
   function updateDecorations() {
-    /**
-     * A function that is doing too much, will be refactored soon
-     */
-    const changeTheWorld = (skip, thematch) => {
-      var m = match[0];
-      var l = m.length;
-      var o = 0;
-      var n = 0;
-      while (n < l) {
-        var startPos = activeEditor.document.positionAt(match.index + n);
-        n += m[n] === '\t' ? 1 : activeEditor.options.tabSize;
-
-        var endPos = activeEditor.document.positionAt(match.index + n);
-        const decoration = getDecoration(startPos, endPos);
-
-        let sc = 0; // space count
-        let tc = 0; // tab count
-
-        if (!skip && tabmix_decorator) {
-          // counting (split is said to be faster than match()
-          // only do it if we don't already skip all errors
-          tc = thematch.split('\t').length - 1;
-          if (tc) {
-            // only do this if we already have some tabs
-            sc = thematch.split(' ').length - 1;
-          }
-          // if we have (only) "spaces" in a "tab" indent file we
-          // just ignore that, because we don't know if there
-          // should really be tabs or spaces for indentation
-          // If you (yes you!) know how to find this out without
-          // infering this from the file, speak up :)
-        }
-
-        if (sc > 0 && tc > 0) {
-          tabmix_decorator.push(decoration);
-        } else {
-          let decorator_index = o % decorators.length;
-          decorators[decorator_index].push(decoration);
-        }
-        o++;
-      }
-    };
-
     if (!activeEditor) {
       return;
     }
+
     const regEx = /^[\t ]+/gm;
-    const tabsize = activeEditor.options.tabSize;
     const text = activeEditor.document.getText();
-    const tabs = ' '.repeat(tabsize);
+    const ignoredLines = [];
+
+    if (!skipAllErrors) {
+      /**
+       * Checks text against ignore regex patterns from config(or default).
+       * stores the line positions of those lines in the ignoreLines array.
+       */
+      // ignoreLinePatterns.forEach(ignorePattern => {
+      //   let ignored = ignorePattern.exec(text);
+
+      //   while (match) {
+      //     const pos = activeEditor.document.positionAt(ignored.index);
+      //     const line = activeEditor.document.lineAt(pos).lineNumber;
+      //     ignoredLines.push(line);
+
+      //     match = ignorePattern.exec(text);
+      //   }
+      // });
+
+      let matches = matchesAny(text, ignoreLinePatterns);
+
+      while (matches) {
+        const pos = activeEditor.document.positionAt(matches.index);
+        const line = activeEditor.document.lineAt(pos).lineNumber;
+        ignoredLines.push(line);
+
+        matches = matchesAny(text, ignoreLinePatterns);
+      }
+    }
 
     let error_decorator: vscode.DecorationOptions[] = [];
     let tabmix_decorator: vscode.DecorationOptions[] = tabmix_decoration_type ? [] :
       null;
-    let decorators = [];
+    let decorators: vscode.DecorationOptions[][] = [];
 
     decorationTypes.forEach(() => {
       let decorator: vscode.DecorationOptions[] = [];
@@ -103,17 +86,17 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     // TODO: use map instead of array
-    const dercoratorsMap = new Map<vscode.TextEditorDecorationType, vscode.DecorationOptions[]>();
+    const dercoratorsMap = new Map<vscode.TextEditorDecorationType,
+      vscode.DecorationOptions[]>();
     decorationTypes.forEach(type => dercoratorsMap.set(type, []));
 
-    const re = new RegExp('\t', 'g');
     let match: RegExpExecArray = regEx.exec(text);
     while (match) {
       const pos = activeEditor.document.positionAt(match.index);
       const line = activeEditor.document.lineAt(pos);
-      const skip = skipAllErrors || matchesAny(line.text, ignoreLinePatterns); // true if the lineNumber is in ignoreLines.
-      const thematch = match[0];
-      const ma = match[0].replace(re, tabs).length;
+      const skip = skipAllErrors || !!ignoredLines.find(n => n === line.lineNumber);
+      const indentation = getIndentationLength(match);
+
       /**
        * Error handling.
        * When the indent spacing (as spaces) is not divisible by the tabsize,
@@ -121,11 +104,11 @@ export function activate(context: vscode.ExtensionContext) {
        * Checks for lines being ignored in ignoreLines array ( `skip` Boolran)
        * before considering the line an error.
        */
-      if (!skip && ma % tabsize !== 0) {
+      if (!skip && indentation % activeEditor.options.tabSize !== 0) {
         const decoration = getErrorDecoration(activeEditor, match);
         error_decorator.push(decoration);
       } else {
-        changeTheWorld(skip, thematch);
+        changeTheWorld(skip, match, tabmix_decorator, decorators);
       }
 
       match = regEx.exec(text);
@@ -138,6 +121,53 @@ export function activate(context: vscode.ExtensionContext) {
     activeEditor.setDecorations(tabmix_decoration_type, tabmix_decorator);
 
     clearMe = true;
+  }
+
+  /**
+   * A function that is doing too much, will be refactored soon
+   */
+  function changeTheWorld(
+    skip: boolean,
+    match: RegExpExecArray,
+    tabmix_decorator: vscode.DecorationOptions[],
+    decorators: vscode.DecorationOptions[][],
+  ) {
+    var matchedText = match[0];
+    var o = 0;
+    var n = 0;
+    while (n < matchedText.length) {
+      var startPos = activeEditor.document.positionAt(match.index + n);
+      n += matchedText[n] === '\t' ? 1 : activeEditor.options.tabSize;
+
+      var endPos = activeEditor.document.positionAt(match.index + n);
+      const decoration = getDecoration(startPos, endPos);
+
+      let spaceCount = 0;
+      let tabCount = 0;
+
+      if (!skip && tabmix_decorator) {
+        // counting (split is said to be faster than match()
+        // only do it if we don't already skip all errors
+        tabCount = matchedText.split('\t').length - 1;
+        if (tabCount) {
+          // only do this if we already have some tabs
+          spaceCount = matchedText.split(' ').length - 1;
+        }
+        // if we have (only) "spaces" in a "tab" indent file we
+        // just ignore that, because we don't know if there
+        // should really be tabs or spaces for indentation
+        // If you (yes you!) know how to find this out without
+        // infering this from the file, speak up :)
+      }
+
+      if (spaceCount > 0 && tabCount > 0) {
+        tabmix_decorator.push(decoration);
+      } else {
+        let decorator_index = o % decorators.length;
+        decorators[decorator_index].push(decoration);
+      }
+      o++;
+    }
   }
 
   function triggerUpdateDecorations() {
@@ -228,6 +258,16 @@ export function activate(context: vscode.ExtensionContext) {
 
     return doIt;
   }
+
+  function getIndentationLength(indentation: RegExpExecArray): number {
+    return convertTabsToSpaces(indentation[0]).length;
+  }
+
+  const re = new RegExp('\t', 'g');
+  const tabs = ' '.repeat(activeEditor.options.tabSize);
+  function convertTabsToSpaces(str: string): string {
+    return str.replace(re, tabs);
+  }
 }
 
 const getDecoration = (start, end): vscode.DecorationOptions => ({
@@ -252,16 +292,19 @@ const getUserPreferences = () => {
    *  e.g. when you have your tabs set to 2 spaces but the indent is 3 spaces
    */
   const error_color = config.errorColor || 'rgba(128,32,32,0.3)';
-  const tabmix_color = config.tabmixColor || '';
   const updateDelay: number = config.updateDelay || 100;
   const ignoredLanguages: string[] = config.ignoreErrorLanguages || [];
   const includedLanguages = config.includedLanguages || [];
   const excludedLanguages = config.excludedLanguages || [];
+  const tabmix_color = config.tabmixColor !== '' ? 'rgba(128,32,96,0.6)' : null;
+  const tabmix_decoration_type = tabmix_color ? vscode.window.createTextEditorDecorationType({
+    backgroundColor: tabmix_color
+  }) : null;
   const ignoreLinePatterns: RegExp[] = (config.ignoreLinePatterns || [])
     .map(stringToRegex)
     .filter((r: RegExp | null) => !!r);
   // Colors will cycle through, and can be any size that you want
-  const colors: string[] = config['colors'] || [
+  const colors: string[] = config.colors || [
     'rgba(255,255,64,0.07)',
     'rgba(127,255,127,0.07)',
     'rgba(255,127,255,0.07)',
@@ -275,7 +318,7 @@ const getUserPreferences = () => {
     ignoredLanguages,
     ignoreLinePatterns,
     includedLanguages,
-    tabmix_color,
+    tabmix_decoration_type,
     updateDelay,
   };
 };
@@ -292,14 +335,13 @@ const getDecorationTypes = (colors: string[]): vscode.TextEditorDecorationType[]
   );
 };
 
-const matchesAny = (text: string, expressions: RegExp[]): boolean => {
+const matchesAny = (text: string, expressions: RegExp[]): RegExpExecArray => {
   for (const expression of expressions) {
-    if (expression.test(text)) {
-      return true;
+    const match = expression.exec(text);
+    if (match) {
+      return match;
     }
   }
-
-  return false;
 };
 
 const stringToRegex = (ignorePattern): RegExp | null => {
