@@ -215,7 +215,7 @@ export function activate(context: vscode.ExtensionContext) {
           } else {
             n+=activeEditor.options.tabSize;
           }
-          var endPos = activeEditor.document.positionAt(match.index + n);
+          var endPos = activeEditor.document.positionAt(match.index + Math.min(n, l));
           var decoration = { range: new vscode.Range(startPos, endPos), hoverMessage: null };
           var sc=0;
           var tc=0;
