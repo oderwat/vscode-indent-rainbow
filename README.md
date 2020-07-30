@@ -23,7 +23,10 @@ Although you can just use it as it is there is the possibility to configure some
   "indentRainbow.excludedLanguages": ["plaintext"]
 
   // The delay in ms until the editor gets updated.
-  "indentRainbow.updateDelay": 100 // 10 makes it super fast but may cost more resources
+  "indentRainbow.updateDelay": 100 // 10 makes it super fast but may cost more resources,
+
+  // Do not show an error when the indent lines up with a bracket on a previous line.
+  "indentRainbow.allowAligningToBrackets": false
 ```
 
 *Notice: Defining both `includedLanguages` and `excludedLanguages` does not make much sense. Use one of both!*

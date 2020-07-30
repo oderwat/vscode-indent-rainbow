@@ -29,6 +29,8 @@ export function activate(context: vscode.ExtensionContext) {
 
   const ignoreLinePatterns = vscode.workspace.getConfiguration('indentRainbow')['ignoreLinePatterns'] || [];
 
+  const allowAligningToBrackets = vscode.workspace.getConfiguration('indentRainbow')['allowAligningToBrackets'] || false;
+
   // Colors will cycle through, and can be any size that you want
   const colors = vscode.workspace.getConfiguration('indentRainbow')['colors'] || [
     "rgba(255,255,64,0.07)",
@@ -185,8 +187,7 @@ export function activate(context: vscode.ExtensionContext) {
     let defaultIndentCharRegExp = null;
 
     while (match = regEx.exec(text)) {
-      const pos = activeEditor.document.positionAt(match.index);
-      const line = activeEditor.document.lineAt(pos).lineNumber;
+      const line = activeEditor.document.positionAt(match.index).line;
       let skip = skipAllErrors || ignoreLines.indexOf(line) !== -1; // true if the lineNumber is in ignoreLines.
       var thematch = match[0];
       var ma = (match[0].replace(re, tabs)).length;
@@ -194,10 +195,19 @@ export function activate(context: vscode.ExtensionContext) {
        * Error handling.
        * When the indent spacing (as spaces) is not divisible by the tabsize,
        * consider the indent incorrect and mark it with the error decorator.
-       * Checks for lines being ignored in ignoreLines array ( `skip` Boolran)
+       * Checks for lines being ignored in ignoreLines array ( `skip` Boolean)
        * before considering the line an error.
+       * Checks whether the indent lines up with the start of the text or a
+       * bracket on the previous line before considering the line an error
        */
-      if(!skip && ma % tabsize !== 0) {
+      let error = !skip && ma % tabsize !== 0;
+      if (error && allowAligningToBrackets && line > 0) {
+        let prevLn = activeEditor.document.lineAt(line - 1);
+        if (prevLn.firstNonWhitespaceCharacterIndex === ma || new RegExp("\\{|\\(|\\[|<").test(prevLn.text[ma - 1])) {
+          error = false;
+        }
+      }
+      if (error) {
         var startPos = activeEditor.document.positionAt(match.index);
         var endPos = activeEditor.document.positionAt(match.index + match[0].length);
         var decoration = { range: new vscode.Range(startPos, endPos), hoverMessage: null };

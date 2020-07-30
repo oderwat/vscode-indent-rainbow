@@ -85,6 +85,11 @@
                         "rgba(79,236,236,0.07)"
                     ],
                     "description": "An array with color (hex, rgba, rgb) strings which are used as colors, can be any length."
+                },
+                "indentRainbow.allowAligningToBrackets": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Do not show an error when the indent lines up with a bracket on a previous line."
                 }
             }
         }
