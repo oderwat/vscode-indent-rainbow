@@ -187,7 +187,7 @@ export function activate(context: vscode.ExtensionContext) {
     let defaultIndentCharRegExp = null;
 
     while (match = regEx.exec(text)) {
-      const pos = activeEditor.document.positionAt(ignore.index);
+      const pos = activeEditor.document.positionAt(match.index);
       const line = activeEditor.document.lineAt(pos).lineNumber;
       let skip = skipAllErrors || ignoreLines.indexOf(line) !== -1; // true if the lineNumber is in ignoreLines.
       var thematch = match[0];
