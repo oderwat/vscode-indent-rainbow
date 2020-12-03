@@ -1,7 +1,11 @@
 # Indent-Rainbow
 
 ## A simple extension to make indentation more readable
--------------------
+
+If you like this plugin, please consider a small donation:
+[![Donate with PayPal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://paypal.me/oderwat)
+
+---
 
 This extension colorizes the indentation in front of your text alternating four different colors on each step. Some may find it helpful in writing code for Nim or Python.
 
@@ -76,9 +80,3 @@ npm run vscode:prepublish
 ```
 
 Running `npm run compile` makes the compiler recompile on file change.
-
-The current version is my "first try" on a VSCode extension. I am sure stuff could be more optimized :)
-
-If you like this plugin, please consider a small donation!
-
-[![Donate with PayPal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://paypal.me/oderwat)
