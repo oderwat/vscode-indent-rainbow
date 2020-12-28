@@ -46,7 +46,7 @@
                     "default": [
                         "markdown"
                     ],
-                    "description": "For which languages indent-rainbow should skip indent error detection (use '*' to deavtivate errors for all languages)."
+                    "description": "For which languages indent-rainbow should skip indent error detection (use '*' to deactivate errors for all languages)."
                 },
                 "indentRainbow.updateDelay": {
                     "type": "integer",
@@ -85,6 +85,11 @@
                         "rgba(79,236,236,0.07)"
                     ],
                     "description": "An array with color (hex, rgba, rgb) strings which are used as colors, can be any length."
+                },
+                "indentRainbow.colorOnWhiteSpaceOnly": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "If error color is disabled, indent colors will be rendered until the length of rendered characters (white spaces, tabs, and other ones) is divisible by tabsize. Turn on this option to render white spaces and tabs only."
                 }
             }
         }

@@ -28,6 +28,7 @@ export function activate(context: vscode.ExtensionContext) {
   }) : null;
 
   const ignoreLinePatterns = vscode.workspace.getConfiguration('indentRainbow')['ignoreLinePatterns'] || [];
+  const colorOnWhiteSpaceOnly = vscode.workspace.getConfiguration('indentRainbow')['colorOnWhiteSpaceOnly'];
 
   // Colors will cycle through, and can be any size that you want
   const colors = vscode.workspace.getConfiguration('indentRainbow')['colors'] || [
@@ -214,6 +215,9 @@ export function activate(context: vscode.ExtensionContext) {
             n++;
           } else {
             n+=activeEditor.options.tabSize;
+          }
+          if (colorOnWhiteSpaceOnly && n > l) {
+            n = l
           }
           var endPos = activeEditor.document.positionAt(match.index + n);
           var decoration = { range: new vscode.Range(startPos, endPos), hoverMessage: null };
