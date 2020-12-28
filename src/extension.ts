@@ -24,11 +24,11 @@ export function activate(context: vscode.ExtensionContext) {
 
   const tabmix_color = vscode.workspace.getConfiguration('indentRainbow')['tabmixColor'] || "";
   const tabmix_decoration_type = "" !== tabmix_color ? vscode.window.createTextEditorDecorationType({
-    backgroundColor: tabmix_color
+     backgroundColor: tabmix_color
   }) : null;
 
   const ignoreLinePatterns = vscode.workspace.getConfiguration('indentRainbow')['ignoreLinePatterns'] || [];
-  const colorOnWhiteSpaceOnly = vscode.workspace.getConfiguration('indentRainbow')['colorOnWhiteSpaceOnly'];
+  const colorOnWhiteSpaceOnly = vscode.workspace.getConfiguration('indentRainbow')['colorOnWhiteSpaceOnly'] || false;
 
   // Colors will cycle through, and can be any size that you want
   const colors = vscode.workspace.getConfiguration('indentRainbow')['colors'] || [
@@ -154,8 +154,12 @@ export function activate(context: vscode.ExtensionContext) {
     }
     var regEx = /^[\t ]+/gm;
     var text = activeEditor.document.getText();
-    var tabsize = activeEditor.options.tabSize;
-    var tabs = " ".repeat(tabsize);
+    var tabSizeRaw = activeEditor.options.tabSize;
+    var tabSize = 4
+    if(tabSizeRaw !== 'auto') {
+      tabSize=+tabSizeRaw
+    }
+    var tabs = " ".repeat(tabSize);
     const ignoreLines = [];
     let error_decorator: vscode.DecorationOptions[] = [];
     let tabmix_decorator: vscode.DecorationOptions[] = tabmix_decoration_type ? []: null;
@@ -189,7 +193,7 @@ export function activate(context: vscode.ExtensionContext) {
       const pos = activeEditor.document.positionAt(match.index);
       const line = activeEditor.document.lineAt(pos).lineNumber;
       let skip = skipAllErrors || ignoreLines.indexOf(line) !== -1; // true if the lineNumber is in ignoreLines.
-      var thematch = match[0];
+     var thematch = match[0];
       var ma = (match[0].replace(re, tabs)).length;
       /**
        * Error handling.
@@ -198,7 +202,7 @@ export function activate(context: vscode.ExtensionContext) {
        * Checks for lines being ignored in ignoreLines array ( `skip` Boolran)
        * before considering the line an error.
        */
-      if(!skip && ma % tabsize !== 0) {
+      if(!skip && ma % tabSize !== 0) {
         var startPos = activeEditor.document.positionAt(match.index);
         var endPos = activeEditor.document.positionAt(match.index + match[0].length);
         var decoration = { range: new vscode.Range(startPos, endPos), hoverMessage: null };
@@ -214,7 +218,7 @@ export function activate(context: vscode.ExtensionContext) {
           if(m[n] === "\t") {
             n++;
           } else {
-            n+=activeEditor.options.tabSize;
+            n+=tabSize;
           }
           if (colorOnWhiteSpaceOnly && n > l) {
             n = l

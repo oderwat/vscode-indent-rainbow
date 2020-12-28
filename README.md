@@ -72,6 +72,13 @@ Skip error highlighting for some or all languages. For example, you may want to 
     "haskell"
   ]
 ```
+
+If error color is disabled, indent colors will be rendered until the length of rendered characters (white spaces, tabs, and other ones) is divisible by tabsize. Turn on this option to render white spaces and tabs only.
+
+```js
+  "indentRainbow.colorOnWhiteSpaceOnly": true // false is the default
+```
+
 Build with:
 
 ```
