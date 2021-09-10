@@ -3,3 +3,4 @@ dist
 node_modules
 extension.js
 .vscode-test/
+.vscode-test-web/
