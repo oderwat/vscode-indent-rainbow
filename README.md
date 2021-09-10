@@ -9,6 +9,8 @@ If you like this plugin, please consider a small donation:
 
 This extension colorizes the indentation in front of your text alternating four different colors on each step. Some may find it helpful in writing code for Nim or Python.
 
+Note: This will also work with vscode-web (github.dev) since version 8.0.0.
+
 ![Example](https://raw.githubusercontent.com/oderwat/vscode-indent-rainbow/master/assets/example.png)
 
 Get it here: [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=oderwat.indent-rainbow)
