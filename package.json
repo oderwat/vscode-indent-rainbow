@@ -95,7 +95,7 @@
         }
     },
     "browser": "./dist/web/extension.js",
-    "main": "./out/extension",
+    "main": "./out/src/extension",
     "scripts": {
         "vscode:prepublish": "npm run compile && npm run package-web",
         "compile": "tsc -p ./",
