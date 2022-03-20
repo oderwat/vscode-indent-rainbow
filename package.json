@@ -90,6 +90,11 @@
                     "type": "boolean",
                     "default": false,
                     "description": "If error color is disabled, indent colors will be rendered until the length of rendered characters (white spaces, tabs, and other ones) is divisible by tabsize. Turn on this option to render white spaces and tabs only."
+                },
+                "indentRainbow.tabSize": {
+                    "type": "integer",
+                    "default": 4,
+                    "description": "By default the tabsize is 4."
                 }
             }
         }
