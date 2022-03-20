@@ -84,6 +84,11 @@ If error color is disabled, indent colors will be rendered until the length of r
   "indentRainbow.colorOnWhiteSpaceOnly": true // false is the default
 ```
 
+By default the tabsize is 4
+```js
+  "indentRainbow.tabSize": 4 // 4 is the default
+```
+
 Build with:
 
 ```

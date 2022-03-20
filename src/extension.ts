@@ -154,8 +154,8 @@ export function activate(context: vscode.ExtensionContext) {
     }
     var regEx = /^[\t ]+/gm;
     var text = activeEditor.document.getText();
-    var tabSizeRaw = activeEditor.options.tabSize;
-    var tabSize = 4
+    var tabSizeRaw =  vscode.workspace.getConfiguration('indentRainbow')['tabSize'] || activeEditor.options.tabSize;
+    var tabSize = vscode.workspace.getConfiguration('indentRainbow')['tabSize'] || 4;
     if(tabSizeRaw !== 'auto') {
       tabSize=+tabSizeRaw
     }
