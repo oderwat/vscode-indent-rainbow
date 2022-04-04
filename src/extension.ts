@@ -268,4 +268,23 @@ export function activate(context: vscode.ExtensionContext) {
     tabmix_decoration_type && activeEditor.setDecorations(tabmix_decoration_type, tabmix_decorator);
     clearMe = true;
   }
+  /**
+   * Listen for configuration change in indentRainbow section
+   * When anything changes in the section, show a prompt to reload
+   * VSCode window 
+  */
+  vscode.workspace.onDidChangeConfiguration(configChangeEvent => {
+
+    if (configChangeEvent.affectsConfiguration('indentRainbow')) {
+      const actions = ['Reload now', 'Later'];
+
+      vscode.window
+        .showInformationMessage('The VSCode window needs to reload for the changes to take effect. Would you like to reload the window now?', ...actions)
+        .then(action => {
+          if (action === actions[0]) {
+            vscode.commands.executeCommand('workbench.action.reloadWindow');
+          }
+        });
+    }
+	});
 }
