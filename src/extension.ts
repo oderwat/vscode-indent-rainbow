@@ -29,6 +29,8 @@ export function activate(context: vscode.ExtensionContext) {
 
   const ignoreLinePatterns = vscode.workspace.getConfiguration('indentRainbow')['ignoreLinePatterns'] || [];
   const colorOnWhiteSpaceOnly = vscode.workspace.getConfiguration('indentRainbow')['colorOnWhiteSpaceOnly'] || false;
+  const indicatorStyle = vscode.workspace.getConfiguration('indentRainbow')['indicatorStyle'] || 'classic';
+  const lightIndicatorStyleLineWidth = vscode.workspace.getConfiguration('indentRainbow')['lightIndicatorStyleLineWidth'] || 1;
 
   // Colors will cycle through, and can be any size that you want
   const colors = vscode.workspace.getConfiguration('indentRainbow')['colors'] || [
@@ -40,9 +42,17 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Loops through colors and creates decoration types for each one
   colors.forEach((color, index) => {
-    decorationTypes[index] = vscode.window.createTextEditorDecorationType({
-      backgroundColor: color
-    });
+    if (indicatorStyle === 'classic') {
+      decorationTypes[index] = vscode.window.createTextEditorDecorationType({
+        backgroundColor: color
+      });
+    } else if (indicatorStyle === 'light') {
+      decorationTypes[index] = vscode.window.createTextEditorDecorationType({
+        borderStyle: "solid",
+        borderColor: color,
+        borderWidth: `0 0 0 ${lightIndicatorStyleLineWidth}px`
+      });
+    }
   });
 
   // loop through ignore regex strings and convert to valid RegEx's.

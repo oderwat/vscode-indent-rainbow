@@ -90,6 +90,17 @@
                     "type": "boolean",
                     "default": false,
                     "description": "If error color is disabled, indent colors will be rendered until the length of rendered characters (white spaces, tabs, and other ones) is divisible by tabsize. Turn on this option to render white spaces and tabs only."
+                },
+                "indentRainbow.indicatorStyle": {
+                    "type": "string",
+                    "default": "classic",
+                    "enum": ["classic", "light"],
+                    "markdownDescription": "Classic mode uses a full colored tab to indicate the indendation. Light mode will only display a colored border similar to the default indent guide lines. You can disable the default indicators with `#editor.guides.indentation#`."
+                },
+                "indentRainbow.lightIndicatorStyleLineWidth": {
+                    "type": "number",
+                    "default": 1,
+                    "description": "This property defines the indent indicator lineWidth when using light mode."
                 }
             }
         }
