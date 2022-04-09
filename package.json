@@ -1,7 +1,7 @@
 {
     "name": "indent-rainbow",
     "description": "Makes indentation easier to read",
-    "version": "8.3.0",
+    "version": "8.3.1",
     "publisher": "oderwat",
     "author": {
         "name": "Hans Raaf"
@@ -127,7 +127,7 @@
         "@typescript-eslint/parser": "^4.11.1",
         "eslint": "^7.16.0",
         "glob": "^7.1.6",
-        "mocha": "^8.1.3",
+        "mocha": "^9.1.4",
         "ts-loader": "^9.2.3",
         "typescript": "^4.1.2",
         "vscode-test": "^1.4.1",
