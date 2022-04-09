@@ -10,7 +10,7 @@ If you use this plugin a lot, please consider a donation:
 
 ---
 
-This extension colorizes the indentation in front of your text alternating four different colors on each step. Some may find it helpful in writing code for Nim or Python.
+This extension colorizes the indentation in front of your text, alternating four different colors on each step. Some may find it helpful in writing code for Python, Nim, Yaml, and probably even filetypes that are not indentation dependent.
 
 Note: This will also work with vscode-web (github.dev) since version 8.0.0.
 
@@ -18,11 +18,11 @@ Note: This will also work with vscode-web (github.dev) since version 8.0.0.
 
 Get it here: [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=oderwat.indent-rainbow)
 
-It uses the current editor window tab size and can handle mixed tab + spaces but that is not recommended. In addition it visibly marks lines where the indentation is not a multiple of the tab size. This should help to find problems with indentation in some situations.
+It uses the current editor window tab size and can handle mixed tab + spaces (not recommended). In addition, it visibly marks lines where the indentation is not a multiple of the tab size. The visualization can help to find problems with the indentation in some situations.
 
 ### Configuration
 
-Although you can just use it as it is there is the possibility to configure some aspects of the extension:
+Although you can use it as it is, there is the possibility to configure some aspects of the extension:
 
 ```js
   // For which languages indent-rainbow should be activated (if empty it means all).
@@ -41,7 +41,6 @@ You can configure your own colors by adding and tampering with the following cod
 
 ```js
   // Defining custom colors instead of default "Rainbow" for dark backgrounds.
-  // (Sorry: Changing them needs an editor restart for now!)
   "indentRainbow.colors": [
     "rgba(255,255,64,0.07)",
     "rgba(127,255,127,0.07)",
@@ -58,6 +57,27 @@ You can configure your own colors by adding and tampering with the following cod
 ```
 
 > Notice: `errorColor` was renamed from `error_color` in earlier versions.
+
+### Light mode (new since v8.3.0)
+
+There is a (new) alternate mode that uses lines (with a customizable width) instead of the background coloring of the whitespace. Here is an example configuration I like:
+
+```js
+  // Using the light mode
+  "indentRainbow.indicatorStyle": "light",
+  // we use a simple 1 pixel wide line
+  "indentRainbow.lightIndicatorStyleLineWidth": 1,
+  // the same colors as above but more visible
+  "indentRainbow.colors": [
+    "rgba(255,255,64,0.3)",
+    "rgba(127,255,127,0.3)",
+    "rgba(255,127,255,0.3)",
+    "rgba(79,236,236,0.3)"
+```
+
+> For this addition, a big thank you goes to Christian Hoock [wk1](https://github.com/wk1). He also added the editor window reload on config changes.
+
+### Hiding error highlighting
 
 Skip error highlighting for RegEx patterns. For example, you may want to turn off the indent errors for JSDoc's valid additional space (disabled by default), or comment lines beginning with `//`
 
