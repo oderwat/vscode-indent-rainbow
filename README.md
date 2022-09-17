@@ -72,7 +72,7 @@ There is a (new) alternate mode that uses lines (with a customizable width) inst
     "rgba(255,255,64,0.3)",
     "rgba(127,255,127,0.3)",
     "rgba(255,127,255,0.3)",
-    "rgba(79,236,236,0.3)"
+    "rgba(79,236,236,0.3)"]
 ```
 
 > For this addition, a big thank you goes to Christian Hoock [wk1](https://github.com/wk1). He also added the editor window reload on config changes.
