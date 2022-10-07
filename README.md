@@ -104,6 +104,12 @@ If error color is disabled, indent colors will be rendered until the length of r
   "indentRainbow.colorOnWhiteSpaceOnly": true // false is the default
 ```
 
+### Ignore alignment spaces
+
+Do not consider spaces after the last tab, or spaces without tabs, as part of the indent. This can be useful when using only tabs for indenting and only spaces for alignment.
+Ignored alignment spaces will not cause error highlighting and will not receive indent highighting.
+
+
 Build with:
 
 ```

@@ -31,6 +31,7 @@ export function activate(context: vscode.ExtensionContext) {
   const colorOnWhiteSpaceOnly = vscode.workspace.getConfiguration('indentRainbow')['colorOnWhiteSpaceOnly'] || false;
   const indicatorStyle = vscode.workspace.getConfiguration('indentRainbow')['indicatorStyle'] || 'classic';
   const lightIndicatorStyleLineWidth = vscode.workspace.getConfiguration('indentRainbow')['lightIndicatorStyleLineWidth'] || 1;
+  const ignoreAlignmentSpaces = vscode.workspace.getConfiguration('indentRainbow')['ignoreAlignmentSpaces'] || false;
 
   // Colors will cycle through, and can be any size that you want
   const colors = vscode.workspace.getConfiguration('indentRainbow')['colors'] || [
@@ -162,7 +163,9 @@ export function activate(context: vscode.ExtensionContext) {
     if (!activeEditor) {
       return;
     }
-    var regEx = /^[\t ]+/gm;
+
+    var regEx = ignoreAlignmentSpaces ? /^[\t ]*\t+/gm : /^[\t ]+/gm;
+
     var text = activeEditor.document.getText();
     var tabSizeRaw = activeEditor.options.tabSize;
     var tabSize = 4
