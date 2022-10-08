@@ -36,7 +36,7 @@ Although you can use it as it is, there is the possibility to configure some asp
 
   // Do not consider spaces after the last tab, or spaces without tabs, as part of the indent.
   // This can be useful when using only tabs for indenting and only spaces for alignment.
-  "indentRainbow.ignoreAlignmentSpaces": true
+  "indentRainbow.ignoreAlignmentSpaces": true // false is the default
 ```
 
 *Notice: Defining both `includedLanguages` and `excludedLanguages` does not make much sense. Use one of both!*
