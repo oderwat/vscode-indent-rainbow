@@ -33,6 +33,10 @@ Although you can use it as it is, there is the possibility to configure some asp
 
   // The delay in ms until the editor gets updated.
   "indentRainbow.updateDelay": 100 // 10 makes it super fast but may cost more resources
+
+  // Do not consider spaces after the last tab, or spaces without tabs, as part of the indent.
+  // This can be useful when using only tabs for indenting and only spaces for alignment.
+  "indentRainbow.ignoreAlignmentSpaces": true
 ```
 
 *Notice: Defining both `includedLanguages` and `excludedLanguages` does not make much sense. Use one of both!*
@@ -103,12 +107,6 @@ If error color is disabled, indent colors will be rendered until the length of r
 ```js
   "indentRainbow.colorOnWhiteSpaceOnly": true // false is the default
 ```
-
-### Ignore alignment spaces
-
-Do not consider spaces after the last tab, or spaces without tabs, as part of the indent. This can be useful when using only tabs for indenting and only spaces for alignment.
-Ignored alignment spaces will not cause error highlighting and will not receive indent highighting.
-
 
 Build with:
 
