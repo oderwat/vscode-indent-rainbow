@@ -53,11 +53,6 @@
                     "default": 100,
                     "description": "The delay in ms until the editor gets updated."
                 },
-                "indentRainbow.indentSetter": {
-                    "type": "object",
-                    "default": {},
-                    "description": "Automatically change indent settings for languages (see README.md for details)."
-                },
                 "indentRainbow.errorColor": {
                     "type": "string",
                     "default": "rgba(128,32,32,0.6)",
