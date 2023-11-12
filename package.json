@@ -96,6 +96,11 @@
                     "type": "number",
                     "default": 1,
                     "description": "This property defines the indent indicator lineWidth when using light mode."
+                },
+                "indentRainbow.ignoreAlignmentSpaces": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Ignore spaces after the last tab."
                 }
             }
         }
