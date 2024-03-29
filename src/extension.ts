@@ -7,6 +7,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Create a decorator types that we use to decorate indent levels
   let decorationTypes = [];
+  let activeScopeDecorationTypes = [];
 
   let doIt = false;
   let clearMe = false;
@@ -30,7 +31,9 @@ export function activate(context: vscode.ExtensionContext) {
   const ignoreLinePatterns = vscode.workspace.getConfiguration('indentRainbow')['ignoreLinePatterns'] || [];
   const colorOnWhiteSpaceOnly = vscode.workspace.getConfiguration('indentRainbow')['colorOnWhiteSpaceOnly'] || false;
   const indicatorStyle = vscode.workspace.getConfiguration('indentRainbow')['indicatorStyle'] || 'classic';
+  const highlightActiveScope = vscode.workspace.getConfiguration('indentRainbow')['highlightActiveScope'] || false;
   const lightIndicatorStyleLineWidth = vscode.workspace.getConfiguration('indentRainbow')['lightIndicatorStyleLineWidth'] || 1;
+  const lightIndicatorStyleLineWidthHighlight = vscode.workspace.getConfiguration('indentRainbow')['lightIndicatorStyleLineWidthHighlight'] || 2;
 
   // Colors will cycle through, and can be any size that you want
   const colors = vscode.workspace.getConfiguration('indentRainbow')['colors'] || [
@@ -42,16 +45,39 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Loops through colors and creates decoration types for each one
   colors.forEach((color, index) => {
+
+    // create a 100% alpha version of the current color for the highlight
+    const highlightColor = color.replace(/[\d\.]+\)$/g, "1.0)");
+
     if (indicatorStyle === 'classic') {
       decorationTypes[index] = vscode.window.createTextEditorDecorationType({
         backgroundColor: color
       });
+      if (highlightActiveScope) {
+        activeScopeDecorationTypes[index] = vscode.window.createTextEditorDecorationType({
+          backgroundColor: highlightColor
+        });
+        // Alternative more subtle decoration for active scope
+        // activeScopeDecorationTypes[index] = vscode.window.createTextEditorDecorationType({
+        //   backgroundColor: color,
+        //   borderStyle: "solid",
+        //   borderColor: highlightColor,
+        //   borderWidth: `0 0 0 1px`
+        // });
+      }
     } else if (indicatorStyle === 'light') {
       decorationTypes[index] = vscode.window.createTextEditorDecorationType({
         borderStyle: "solid",
         borderColor: color,
         borderWidth: `0 0 0 ${lightIndicatorStyleLineWidth}px`
       });
+      if (highlightActiveScope) {
+        activeScopeDecorationTypes[index] = vscode.window.createTextEditorDecorationType({
+          borderStyle: "solid",
+          borderColor: highlightColor,
+          borderWidth: `0 0 0 ${lightIndicatorStyleLineWidthHighlight}px`
+        });
+      }
     }
   });
 
@@ -89,6 +115,16 @@ export function activate(context: vscode.ExtensionContext) {
     }
   }, null, context.subscriptions);
 
+  vscode.window.onDidChangeTextEditorSelection(event => {
+    if(activeEditor) {
+      indentConfig();
+    }
+
+    if (activeEditor && checkLanguage()) {
+      triggerUpdateDecorations();
+    }
+  }, null, context.subscriptions);
+
   vscode.workspace.onDidChangeTextDocument(event => {
     if(activeEditor) {
       indentConfig();
@@ -112,6 +148,50 @@ export function activate(context: vscode.ExtensionContext) {
       }
     }
   }
+
+function getCurrentScope() {
+  const editor = vscode.window.activeTextEditor;
+  if (!editor) {
+      return; // No open text editor
+  }
+
+  const position = editor.selection.active;
+  const currentLine = position.line;
+
+  // Get the text of the current line
+  const lineText = editor.document.lineAt(currentLine).text;
+
+  // Determine the indentation of the current line
+  const currentIndentation = lineText.search(/\S|$/); // Index of first non-space character or end of line
+
+  var tabSizeRaw = activeEditor.options.tabSize;
+  var tabSize = 4;
+  if(tabSizeRaw !== 'auto') {
+    tabSize=+tabSizeRaw;
+  }
+
+  const currentIndentationLevel = currentIndentation / tabSize;
+  // Array to keep track of lines in the current scope
+  let scopeLines = [];
+
+  // Check lines before the current line
+  for (let i = currentLine - 1; i >= 0; i--) {
+      const line = editor.document.lineAt(i).text;
+      if (line.search(/\S|$/) < currentIndentation) {break;} // Line is out of scope
+      scopeLines.unshift(i); // Prepend line number
+  }
+
+  scopeLines.push(currentLine); // Add the current line to the scope
+
+  // Check lines after the current line
+  for (let i = currentLine + 1; i < editor.document.lineCount; i++) {
+      const line = editor.document.lineAt(i).text;
+      if (line.search(/\S|$/) < currentIndentation) {break;} // Line is out of scope
+      scopeLines.push(i); // Append line number
+  }
+
+  return { lines: scopeLines, indentation: currentIndentation, indentationLevel: currentIndentationLevel };
+}
 
   function checkLanguage() {
     if (activeEditor) {
@@ -141,6 +221,9 @@ export function activate(context: vscode.ExtensionContext) {
       for (let decorationType of decorationTypes) {
         activeEditor.setDecorations(decorationType, decor);
       }
+      for (let decorationType of activeScopeDecorationTypes) {
+        activeEditor.setDecorations(decorationType, decor);
+      }
       clearMe = false;
     }
 
@@ -165,9 +248,9 @@ export function activate(context: vscode.ExtensionContext) {
     var regEx = /^[\t ]+/gm;
     var text = activeEditor.document.getText();
     var tabSizeRaw = activeEditor.options.tabSize;
-    var tabSize = 4
+    var tabSize = 4;
     if(tabSizeRaw !== 'auto') {
-      tabSize=+tabSizeRaw
+      tabSize=+tabSizeRaw;
     }
     var tabs = " ".repeat(tabSize);
     const ignoreLines = [];
@@ -177,6 +260,12 @@ export function activate(context: vscode.ExtensionContext) {
     decorationTypes.forEach(() => {
       let decorator: vscode.DecorationOptions[] = [];
       decorators.push(decorator);
+    });
+
+    let activeScopeDecoratorOptionsCurr = [];
+    activeScopeDecorationTypes.forEach(() => {
+      let decorator: vscode.DecorationOptions[] = [];
+      activeScopeDecoratorOptionsCurr.push(decorator);
     });
 
     var match;
@@ -199,11 +288,21 @@ export function activate(context: vscode.ExtensionContext) {
     var re = new RegExp("\t","g");
     let defaultIndentCharRegExp = null;
 
+
+    // Loop over each occurance of leading whitespace in a line in the text.
+    // regEx is defined above as a regex that matches leading whitespace.
+    // text is the entire text of the document.
     while (match = regEx.exec(text)) {
+      // index of the current leading whitespace in the text.
       const pos = activeEditor.document.positionAt(match.index);
+      // get the line no from the index
       const line = activeEditor.document.lineAt(pos).lineNumber;
+      const currScope = getCurrentScope();
+      const lineInCurrentScope = currScope.lines.includes(line);
+      // set skip to true if the lineNumber is in ignoreLines.
       let skip = skipAllErrors || ignoreLines.indexOf(line) !== -1; // true if the lineNumber is in ignoreLines.
-     var thematch = match[0];
+      var thematch = match[0];
+      // replace all tabs with spaces and get the length of the resulting string. Use this to check if the indent is divisible by tabSize to show/hide error decorator.
       var ma = (match[0].replace(re, tabs)).length;
       /**
        * Error handling.
@@ -224,10 +323,13 @@ export function activate(context: vscode.ExtensionContext) {
         var n = 0;
         while(n < l) {
           const s = n;
+          // startpos wird auch immer neu gesetzt, weil man ja die range von genau einem tab haben will
           var startPos = activeEditor.document.positionAt(match.index + n);
           if(m[n] === "\t") {
+            // if it's a tab we just move one position
             n++;
           } else {
+            // if it's a space we move until the next tab stop
             n+=tabSize;
           }
           if (colorOnWhiteSpaceOnly && n > l) {
@@ -255,7 +357,16 @@ export function activate(context: vscode.ExtensionContext) {
             tabmix_decorator.push(decoration);
           } else {
             let decorator_index = o % decorators.length;
-            decorators[decorator_index].push(decoration);
+            if (lineInCurrentScope) {
+              console.log("currentIndentation: " + currScope.indentation);
+              console.log("n: " + n);
+            }
+            // Add to highlight scope if the indentation matches the current scopes indentation and the line in in current scope
+            if (n === currScope.indentation && lineInCurrentScope && highlightActiveScope) {
+              activeScopeDecoratorOptionsCurr[decorator_index].push(decoration);
+            } else {
+              decorators[decorator_index].push(decoration);
+            }
           }
           o++;
         }
@@ -264,9 +375,14 @@ export function activate(context: vscode.ExtensionContext) {
     decorationTypes.forEach((decorationType, index) => {
       activeEditor.setDecorations(decorationType, decorators[index]);
     });
+    if (highlightActiveScope) {
+      activeScopeDecorationTypes.forEach((decorationType, index) => {
+        activeEditor.setDecorations(decorationType, activeScopeDecoratorOptionsCurr[index]);
+      });
+    }
     activeEditor.setDecorations(error_decoration_type, error_decorator);
     tabmix_decoration_type && activeEditor.setDecorations(tabmix_decoration_type, tabmix_decorator);
-    clearMe = true;
+    clearMe = true; ////added to clear decorations when language switches away from the one we are interested in (see checkLanguage()) 
   }
   /**
    * Listen for configuration change in indentRainbow section

@@ -96,6 +96,16 @@
                     "type": "number",
                     "default": 1,
                     "description": "This property defines the indent indicator lineWidth when using light mode."
+                },
+                "indentRainbow.highlightActiveScope": {
+                    "type": "boolean",
+                    "default": false,
+                    "markdownDescription": "If enabled this will visually highlight the indent guide line for the current scope."
+                },
+                "indentRainbow.lightIndicatorStyleLineWidthHighlight": {
+                    "type": "number",
+                    "default": 2,
+                    "description": "This property defines the indent indicator lineWidth for the highlighted scope when using light mode."
                 }
             }
         }
