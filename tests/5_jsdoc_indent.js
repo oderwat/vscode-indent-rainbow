@@ -16,8 +16,9 @@ class testClass {
     test() {
         //
     }
-     error() {
+
+    error() {
      //   this should contain indent errors
      // ignore // lines
-     }
+    }
 }

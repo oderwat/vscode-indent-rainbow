@@ -24,7 +24,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   const tabmix_color = vscode.workspace.getConfiguration('indentRainbow')['tabmixColor'] || "";
   const tabmix_decoration_type = "" !== tabmix_color ? vscode.window.createTextEditorDecorationType({
-     backgroundColor: tabmix_color
+    backgroundColor: tabmix_color
   }) : null;
 
   const ignoreLinePatterns = vscode.workspace.getConfiguration('indentRainbow')['ignoreLinePatterns'] || [];
@@ -203,7 +203,7 @@ export function activate(context: vscode.ExtensionContext) {
       const pos = activeEditor.document.positionAt(match.index);
       const line = activeEditor.document.lineAt(pos).lineNumber;
       let skip = skipAllErrors || ignoreLines.indexOf(line) !== -1; // true if the lineNumber is in ignoreLines.
-     var thematch = match[0];
+      var thematch = match[0];
       var ma = (match[0].replace(re, tabs)).length;
       /**
        * Error handling.
@@ -228,7 +228,7 @@ export function activate(context: vscode.ExtensionContext) {
           if(m[n] === "\t") {
             n++;
           } else {
-            n+=tabSize;
+            n += tabSize;
           }
           if (colorOnWhiteSpaceOnly && n > l) {
             n = l
