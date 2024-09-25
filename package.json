@@ -22,7 +22,7 @@
         "Other"
     ],
     "activationEvents": [
-        "*"
+        "onStartupFinished"
     ],
     "contributes": {
         "configuration": {
