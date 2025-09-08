@@ -15,25 +15,29 @@ export function activate(context: vscode.ExtensionContext) {
 
   let activeEditor = vscode.window.activeTextEditor;
 
+  let config = vscode.workspace.getConfiguration('indentRainbow');
+
+  let maxLinesInFile = config.maxLinesInFile || null;
+
   // Error color gets shown when tabs aren't right,
   //  e.g. when you have your tabs set to 2 spaces but the indent is 3 spaces
-  const error_color = vscode.workspace.getConfiguration('indentRainbow')['errorColor'] || "rgba(128,32,32,0.3)";
+  const error_color = config['errorColor'] || "rgba(128,32,32,0.3)";
   const error_decoration_type = vscode.window.createTextEditorDecorationType({
     backgroundColor: error_color
   });
 
-  const tabmix_color = vscode.workspace.getConfiguration('indentRainbow')['tabmixColor'] || "";
+  const tabmix_color = config['tabmixColor'] || "";
   const tabmix_decoration_type = "" !== tabmix_color ? vscode.window.createTextEditorDecorationType({
      backgroundColor: tabmix_color
   }) : null;
 
-  const ignoreLinePatterns = vscode.workspace.getConfiguration('indentRainbow')['ignoreLinePatterns'] || [];
-  const colorOnWhiteSpaceOnly = vscode.workspace.getConfiguration('indentRainbow')['colorOnWhiteSpaceOnly'] || false;
-  const indicatorStyle = vscode.workspace.getConfiguration('indentRainbow')['indicatorStyle'] || 'classic';
-  const lightIndicatorStyleLineWidth = vscode.workspace.getConfiguration('indentRainbow')['lightIndicatorStyleLineWidth'] || 1;
+  const ignoreLinePatterns = config['ignoreLinePatterns'] || [];
+  const colorOnWhiteSpaceOnly = config['colorOnWhiteSpaceOnly'] || false;
+  const indicatorStyle = config['indicatorStyle'] || 'classic';
+  const lightIndicatorStyleLineWidth = config['lightIndicatorStyleLineWidth'] || 1;
 
   // Colors will cycle through, and can be any size that you want
-  const colors = vscode.workspace.getConfiguration('indentRainbow')['colors'] || [
+  const colors = config['colors'] || [
     "rgba(255,255,64,0.07)",
     "rgba(127,255,127,0.07)",
     "rgba(255,127,255,0.07)",
@@ -104,7 +108,7 @@ export function activate(context: vscode.ExtensionContext) {
   }
 
   function indentConfig() {
-    var skiplang = vscode.workspace.getConfiguration('indentRainbow')['ignoreErrorLanguages'] || [];
+    var skiplang = config['ignoreErrorLanguages'] || [];
     skipAllErrors = false;
     if(skiplang.length !== 0) {
       if(skiplang.indexOf('*') !== -1 || skiplang.indexOf(currentLanguageId) !== -1) {
@@ -116,8 +120,8 @@ export function activate(context: vscode.ExtensionContext) {
   function checkLanguage() {
     if (activeEditor) {
       if(currentLanguageId !== activeEditor.document.languageId) {
-        var inclang = vscode.workspace.getConfiguration('indentRainbow')['includedLanguages'] || [];
-        var exclang = vscode.workspace.getConfiguration('indentRainbow')['excludedLanguages'] || [];
+        var inclang = config['includedLanguages'] || [];
+        var exclang = config['excludedLanguages'] || [];
 
         currentLanguageId = activeEditor.document.languageId;
         doIt = true;
@@ -154,7 +158,7 @@ export function activate(context: vscode.ExtensionContext) {
     if (timeout) {
       clearTimeout(timeout);
     }
-    var updateDelay = vscode.workspace.getConfiguration('indentRainbow')['updateDelay'] || 100;
+    var updateDelay = config['updateDelay'] || 100;
     timeout = setTimeout(updateDecorations, updateDelay);
   }
 
@@ -162,6 +166,21 @@ export function activate(context: vscode.ExtensionContext) {
     if (!activeEditor) {
       return;
     }
+
+    // Check if file exceeds maximum line limit
+    if (maxLinesInFile !== null && activeEditor.document.lineCount > maxLinesInFile) {
+      // Clear any existing decorations when file is too large
+      var decor: vscode.DecorationOptions[] = [];
+      for (let decorationType of decorationTypes) {
+        activeEditor.setDecorations(decorationType, decor);
+      }
+      activeEditor.setDecorations(error_decoration_type, decor);
+      if (tabmix_decoration_type) {
+        activeEditor.setDecorations(tabmix_decoration_type, decor);
+      }
+      return;
+    }
+
     var regEx = /^[\t ]+/gm;
     var text = activeEditor.document.getText();
     var tabSizeRaw = activeEditor.options.tabSize;
@@ -268,6 +287,11 @@ export function activate(context: vscode.ExtensionContext) {
     tabmix_decoration_type && activeEditor.setDecorations(tabmix_decoration_type, tabmix_decorator);
     clearMe = true;
   }
+  function updateConfig() {
+    config = vscode.workspace.getConfiguration('indentRainbow');
+    maxLinesInFile = config.maxLinesInFile || null;
+  }
+
   /**
    * Listen for configuration change in indentRainbow section
    * When anything changes in the section, show a prompt to reload
@@ -276,6 +300,16 @@ export function activate(context: vscode.ExtensionContext) {
   vscode.workspace.onDidChangeConfiguration(configChangeEvent => {
 
     if (configChangeEvent.affectsConfiguration('indentRainbow')) {
+      // Update maxLinesInFile immediately without requiring reload
+      if (configChangeEvent.affectsConfiguration('indentRainbow.maxLinesInFile')) {
+        updateConfig();
+        // Trigger decoration update with new settings
+        if (activeEditor && checkLanguage()) {
+          triggerUpdateDecorations();
+        }
+        return; // Don't show reload prompt for this setting
+      }
+
       const actions = ['Reload now', 'Later'];
 
       vscode.window

@@ -96,6 +96,11 @@
                     "type": "number",
                     "default": 1,
                     "description": "This property defines the indent indicator lineWidth when using light mode."
+                },
+                "indentRainbow.maxLinesInFile": {
+                    "type": "integer",
+                    "default": null,
+                    "description": "Maximum number of lines in a file for indent-rainbow to be active. When not set or null, there is no limit."
                 }
             }
         }
