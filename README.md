@@ -33,6 +33,10 @@ Although you can use it as it is, there is the possibility to configure some asp
 
   // The delay in ms until the editor gets updated.
   "indentRainbow.updateDelay": 100 // 10 makes it super fast but may cost more resources
+
+  // Maximum number of lines for indent-rainbow to be active. When not set or null, there is no limit.
+  // By default it's set to null (no limit).
+  "indentRainbow.maxLinesInFile": 10000 // Improve performance by disabling on very large files
 ```
 
 *Notice: Defining both `includedLanguages` and `excludedLanguages` does not make much sense. Use one of both!*
