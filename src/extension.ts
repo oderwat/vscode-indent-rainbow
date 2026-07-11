@@ -164,11 +164,9 @@ export function activate(context: vscode.ExtensionContext) {
     }
     var regEx = /^[\t ]+/gm;
     var text = activeEditor.document.getText();
-    var tabSizeRaw = activeEditor.options.tabSize;
-    var tabSize = 4
-    if(tabSizeRaw !== 'auto') {
-      tabSize=+tabSizeRaw
-    }
+    var indentSize = +(activeEditor.options.indentSize?? 4);
+    var tabSize = +(activeEditor.options.tabSize?? 4);
+
     var tabs = " ".repeat(tabSize);
     const ignoreLines = [];
     let error_decorator: vscode.DecorationOptions[] = [];
@@ -207,15 +205,15 @@ export function activate(context: vscode.ExtensionContext) {
       var ma = (match[0].replace(re, tabs)).length;
       /**
        * Error handling.
-       * When the indent spacing (as spaces) is not divisible by the tabsize,
+       * When the indent spacing (as spaces) is not divisible by the indentSize,
        * consider the indent incorrect and mark it with the error decorator.
        * Checks for lines being ignored in ignoreLines array ( `skip` Boolran)
        * before considering the line an error.
        */
-      if(!skip && ma % tabSize !== 0) {
+      if(!skip && ma % indentSize !== 0) {
         var startPos = activeEditor.document.positionAt(match.index);
         var endPos = activeEditor.document.positionAt(match.index + match[0].length);
-        var decoration = { range: new vscode.Range(startPos, endPos), hoverMessage: null };
+        var decoration = { range: new vscode.Range(startPos, endPos), hoverMessage: undefined };
         error_decorator.push(decoration);
       } else {
         var m = match[0];
@@ -225,16 +223,16 @@ export function activate(context: vscode.ExtensionContext) {
         while(n < l) {
           const s = n;
           var startPos = activeEditor.document.positionAt(match.index + n);
-          if(m[n] === "\t") {
-            n++;
+          if(m[Math.floor(n)] === "\t") {
+            n+=indentSize/tabSize;
           } else {
-            n+=tabSize;
+            n+=indentSize;
           }
           if (colorOnWhiteSpaceOnly && n > l) {
             n = l
           }
           var endPos = activeEditor.document.positionAt(match.index + n);
-          var decoration = { range: new vscode.Range(startPos, endPos), hoverMessage: null };
+          var decoration = { range: new vscode.Range(startPos, endPos), hoverMessage: undefined };
           var sc=0;
           var tc=0;
           if (!skip && tabmix_decorator) {
